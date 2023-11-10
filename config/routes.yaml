@@ -1,7 +1,26 @@
 controllers:
     resource: ../src/Controller/
     type: annotation
-
+movies_listing:
+    path: /movies
+    # the controller value has the format 'controller_class::method_name'
+    controller: App\Controller\MovieController::list
+    methods:    GET|HEAD
+get_movie:
+    path: /movies/{id}
+    # the controller value has the format 'controller_class::method_name'
+    controller: App\Controller\MovieController::getMovie
+    methods:    GET|HEAD
+edit_movie:
+    path: /movies/{id}
+    # the controller value has the format 'controller_class::method_name'
+    controller: App\Controller\MovieController::editMovie
+    methods:    POST|PUT
+delete_movie:
+    path: /movies/{id}
+    # the controller value has the format 'controller_class::method_name'
+    controller: App\Controller\MovieController::deleteMovie
+    methods:    DELETE
 kernel:
     resource: ../src/Kernel.php
     type: annotation
