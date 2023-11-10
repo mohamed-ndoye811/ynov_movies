@@ -6,6 +6,8 @@ RUN apt-get update && apt-get install -y \
     git \
     unzip \
     wget
+RUN apt-get update && apt-get install -y libpq-dev \
+    && docker-php-ext-install pdo_pgsql
 
 # Installer Composer
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
@@ -15,3 +17,7 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
 # Installer Symfony CLI
 RUN wget https://get.symfony.com/cli/installer -O - | bash \
     && mv /root/.symfony5/bin/symfony /usr/local/bin/symfony
+
+# Installer MakerBundle et Symfony ORM Pack
+RUN composer require symfony/maker-bundle --dev
+RUN composer require symfony/orm-pack

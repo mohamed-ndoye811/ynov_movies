@@ -1,0 +1,77 @@
+
+# MOVIES_API
+
+
+## Prérequis
+
+Avant de commencer, assurez-vous d'avoir installé :
+
+- Docker
+- Docker Compose
+
+## Installation et Configuration
+
+Suivez ces étapes pour configurer l'environnement de développement.
+
+### Configurer Docker
+
+1. Construisez les images Docker et lancez les conteneurs :
+
+   ```bash
+   docker-compose up -d
+   ```
+
+   Ceci va télécharger et construire les images nécessaires et démarrer les conteneurs.
+
+### Configurer Symfony
+
+1. Une fois les conteneurs Docker lancés, installez les dépendances de Symfony :
+
+   ```bash
+   docker-compose exec web composer install
+   ```
+
+2. Créez et migrez votre base de données :
+
+   ```bash
+   docker-compose exec web php bin/console doctrine:database:create
+   docker-compose exec web php bin/console doctrine:migrations:migrate
+   ```
+
+## Utilisation
+
+Pour accéder à l'application, ouvrez votre navigateur et allez à `http://localhost:8000`.
+
+## Commandes Utiles
+
+- Pour arrêter les conteneurs Docker :
+
+  ```bash
+  docker-compose down
+  ```
+
+- Pour entrer dans un conteneur Docker :
+
+  ```bash
+  docker-compose exec [nom-du-service] bash
+  ```
+
+- Pour consulter les logs :
+
+  ```bash
+  docker-compose logs [nom-du-service]
+  ```
+
+## Développement
+
+Décrivez les étapes spécifiques pour le développement, comme la création d'entités, de contrôleurs, etc.
+
+---
+
+### Notes Additionnelles
+
+- Assurez-vous de remplacer `[url-du-dépôt]` par l'URL réelle de votre dépôt Git.
+- Vous pouvez ajouter plus de détails spécifiques au projet, comme la structure des dossiers, les conventions de nommage, etc.
+- Il est également utile d'inclure des informations sur la manière de contribuer au projet pour les autres développeurs.
+
+Ce modèle de README fournit une base solide pour guider les utilisateurs à travers l'installation et la configuration de base de votre projet Symfony avec Docker. Vous pouvez l'adapter et l'étendre en fonction des spécificités et des besoins de votre projet.
