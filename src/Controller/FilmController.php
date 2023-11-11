@@ -16,27 +16,27 @@ class FilmController extends AbstractController
             'path' => 'src/Controller/FilmController.php',
         ]);
     }
-    
-    #[Route('/movies', name: 'movies_listing')]
-    public function list(): Response
+
+    #[Route('/film/list', name: 'app_film_listing')]
+    public function list(): JsonResponse
     {
         return $this->json(['movies' => []]);
     }
 
-    #[Route('/movies/{id}', name: 'get_movie')]
-    public function getMovie(int $id): Response
+    #[Route('/film/list/{id}', name: 'get_film')]
+    public function getMovie(int $id): JsonResponse
     {
         return $this->json(['movies' => "Movie $id"]);
     }
 
-    #[Route('/movies/{id}', name: 'edit_movie')]
-    public function editMovie(int $id): Response
+    #[Route('/film/list/{id}', name: 'edit_film')]
+    public function editMovie(int $id): JsonResponse
     {
         return $this->json(['created_movie' => "Movie $id"]);
     }
 
-    #[Route('/movies/{id}', name: 'delete_movie')]
-    public function deleteMovie(int $id): Response
+    #[Route('/film/list/{id}', name: 'delete_film')]
+    public function deleteMovie(int $id): JsonResponse
     {
         return $this->json(['deleted_movie' => "Movie $id"], 204);
     }
