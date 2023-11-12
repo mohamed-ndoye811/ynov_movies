@@ -70,6 +70,23 @@ Comming soon...
 
 # Documentation API - Gestion de Films
 
+## Introduction
+
+L'API MOVIES_API supporte désormais les réponses en format JSON et XML. Les clients peuvent spécifier le format souhaité via l'en-tête Accept dans leur requête. Si aucun format n'est spécifié, l'API répondra par défaut en JSON.
+
+## Endpoints
+
+- Liste des films (GET /film/list) : Renvoie une liste de tous les films. Accepte application/json et application/xml.
+- Détails d'un film (GET /film/{id}) : Renvoie les détails d'un film spécifique. Remplacez {id} par l'ID du film. Accepte application/json et application/xml.
+- Création d'un film (POST /film) : Crée un nouveau film. Le corps de la requête doit être au format JSON.
+- Mise à jour d'un film (PUT /film/{id}) : Met à jour un film spécifique. Remplacez {id} par l'ID du film. Le corps de la requête doit être au format JSON.
+- Suppression d'un film (DELETE /film/{id}) : Supprime un film spécifique. Remplacez {id} par l'ID du film.
+
+## Formats de Réponse
+
+- JSON : Pour recevoir la réponse en JSON, incluez Accept: application/json dans l'en-tête de la requête.
+- XML : Pour recevoir la réponse en XML, incluez Accept: application/xml dans l'en-tête de la requête.
+
 ## Sommaire
 - [Récupération de tous les Films](#récupération-de-tous-les-films)
 - [Récupération d'un Film Spécifique](#récupération-dun-film-spécifique)
@@ -118,7 +135,7 @@ Cette route permet de récupérer un film spécifique.
 ```
 
 ## Création d'un Nouveau Film
-**POST** `/film/create`
+**POST** `/film`
 
 Cette route permet de créer un nouveau film.
 
