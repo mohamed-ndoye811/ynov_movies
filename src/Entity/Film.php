@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\FilmRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: FilmRepository::class)]
 class Film
@@ -14,15 +15,19 @@ class Film
     private ?int $id = null;
 
     #[ORM\Column(length: 128)]
+    #[Groups(["film"])]
     private ?string $nom = null;
 
     #[ORM\Column(type: "text", length: 2048)]
+    #[Groups(["film"])]
     private ?string $description = null;
 
     #[ORM\Column(type: "datetime")]
+    #[Groups(["film"])]
     private ?\DateTimeInterface $dateDeParution = null;
 
     #[ORM\Column(type: "integer", nullable: true)]
+    #[Groups(["film"])]
     private ?int $note = null;
 
     public function getId(): ?int

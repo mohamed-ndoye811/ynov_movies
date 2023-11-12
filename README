@@ -64,14 +64,114 @@ Pour accéder à l'application, ouvrez votre navigateur et allez à `http://loca
 
 ## Développement
 
-Décrivez les étapes spécifiques pour le développement, comme la création d'entités, de contrôleurs, etc.
+Comming soon...
 
 ---
 
-### Notes Additionnelles
+# Documentation API - Gestion de Films
 
-- Assurez-vous de remplacer `[url-du-dépôt]` par l'URL réelle de votre dépôt Git.
-- Vous pouvez ajouter plus de détails spécifiques au projet, comme la structure des dossiers, les conventions de nommage, etc.
-- Il est également utile d'inclure des informations sur la manière de contribuer au projet pour les autres développeurs.
+## Sommaire
+- [Récupération de tous les Films](#récupération-de-tous-les-films)
+- [Récupération d'un Film Spécifique](#récupération-dun-film-spécifique)
+- [Création d'un Nouveau Film](#création-dun-nouveau-film)
+- [Modification d'un Film](#modification-dun-film)
+- [Suppression d'un Film](#suppression-dun-film)
 
-Ce modèle de README fournit une base solide pour guider les utilisateurs à travers l'installation et la configuration de base de votre projet Symfony avec Docker. Vous pouvez l'adapter et l'étendre en fonction des spécificités et des besoins de votre projet.
+## Récupération de tous les Films
+**GET** `/film/list`
+
+Cette route permet de récupérer une liste de tous les films.
+
+**Réponse :**
+```json
+{
+    "movies": [
+        {
+            "id": 1,
+            "nom": "Nom du Film",
+            "description": "Description du Film",
+            "dateDeParution": "YYYY-MM-DD",
+            "note": 5
+        },
+        ...
+    ]
+}
+```
+
+## Récupération d'un Film Spécifique
+**GET** `/film/{id}`
+- `{id}` : Identifiant du Film
+
+Cette route permet de récupérer un film spécifique.
+
+**Réponse :**
+```json
+{
+    "movie": {
+        "id": 1,
+        "nom": "Nom du Film",
+        "description": "Description du Film",
+        "dateDeParution": "YYYY-MM-DD",
+        "note": 5
+    }
+}
+```
+
+## Création d'un Nouveau Film
+**POST** `/film/create`
+
+Cette route permet de créer un nouveau film.
+
+**Paramètres :**
+```json
+{
+    "nom": "Nom du Film",
+    "description": "Description du Film",
+    "dateDeParution": "YYYY-MM-DD",
+    "note": 5
+}
+```
+
+**Réponse :**
+```json
+{
+    "message": "Film created successfully"
+}
+
+```
+
+## Modification d'un Film
+**PUT** `/film/{id}`
+- `{id}` : Identifiant du Film
+
+Cette route permet de modifier un film spécifique.
+
+**Paramètres :**
+```json
+{
+    "nom": "Nom du Film",
+    "description": "Description du Film",
+    "dateDeParution": "YYYY-MM-DD",
+    "note": 5
+}
+```
+
+**Réponse :**
+```json
+{
+    "message": "Film updated successfully"
+}
+```
+
+## Suppression d'un Film
+**DELETE** `/film/{id}`
+- `{id}` : Identifiant du Film
+
+Cette route permet de supprimer un film spécifique.
+
+**Réponse :**
+```json
+{
+    "message": "Film deleted successfully"
+}
+```
