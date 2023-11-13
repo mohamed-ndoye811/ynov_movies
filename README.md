@@ -37,6 +37,11 @@ Suivez ces étapes pour configurer l'environnement de développement.
    docker-compose exec web php bin/console doctrine:database:create
    docker-compose exec web php bin/console doctrine:migrations:migrate
    ```
+   
+3. Remplir la base de données :
+    ```bash
+    docker-compose exec web php bin/console doctrine:fixtures:load
+    ```
 
 ## Utilisation
 

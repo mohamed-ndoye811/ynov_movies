@@ -21,3 +21,6 @@ RUN wget https://get.symfony.com/cli/installer -O - | bash \
 # Installer MakerBundle et Symfony ORM Pack
 RUN composer require symfony/maker-bundle --dev
 RUN composer require symfony/orm-pack
+RUN composer require doctrine/doctrine-fixtures-bundle --dev
+RUN composer require fakerphp/faker
+
