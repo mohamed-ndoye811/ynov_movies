@@ -11,6 +11,13 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
+use Nelmio\ApiDocBundle\Annotation\Model;
+use OpenApi\Annotations as OA;
+use OpenApi\Annotations\Get as OAG;
+use OpenApi\Annotations\Post as OAP;
+use OpenApi\Annotations\Put as OAPu;
+use OpenApi\Annotations\Delete as OAD;
+
 use App\Entity\Film;
 
 class FilmController extends AbstractController
@@ -38,7 +45,26 @@ class FilmController extends AbstractController
     }
 
     // This route is for getting a list of all movies
-    #[Route('/film/list', name: 'app_film_listing', methods: ['GET'])]
+    #[Route('api/film/list', name: 'app_film_listing', methods: ['GET'])]
+    #[OAG\Get(
+        path: 'api/film/list',
+        summary: 'Liste des films',
+        tags: ['Film'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Retourne une liste de films',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(ref: new Model(type: Film::class, groups: ['film']))
+                )
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Aucun film trouvé'
+            )
+        ]
+    )]
     public function list(SerializerInterface $serializer, Request $request): Response
     {
         $films = $this->entityManager->getRepository(Film::class)->findAllFilms();
@@ -59,7 +85,26 @@ class FilmController extends AbstractController
     }
 
     // This route is for getting a specific movie by ID
-    #[Route('/film/{id}', name: 'get_film', methods: ['GET'])]
+    #[Route('api/film/{id}', name: 'get_film', methods: ['GET'])]
+    #[OAG\Get(
+        path: 'api/film/{id}',
+        summary: 'Mettre à jours un film',
+        tags: ['Film'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Retourne le film spécifié',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(ref: new Model(type: Film::class, groups: ['film']))
+                )
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Aucun film trouvé'
+            )
+        ]
+    )]
     public function getFilm(int $id, SerializerInterface $serializer, Request $request): Response
     {
         $film = $this->entityManager->getRepository(Film::class)->find($id);
@@ -83,7 +128,28 @@ class FilmController extends AbstractController
     }
 
     // This route is for creating a new movie
-    #[Route('/film', name: 'create_film', methods: ['POST'])]
+    #[Route('api/film', name: 'create_film', methods: ['POST'])]
+    #[OAP\Post(
+        path: 'api/film',
+        summary: 'Créer un film',
+        tags: ['Film'],
+        requestBody: new OA\RequestBody(
+            description: 'Données du film à créer',
+            required: true,
+            content: new OA\JsonContent(ref: new Model(type: Film::class, groups: ['film']))
+        ),
+        responses: [
+            new OA\Response(
+                response: 201,
+                description: 'Film créé avec succès',
+                content: new OA\JsonContent(ref: new Model(type: Film::class, groups: ['film']))
+            ),
+            new OA\Response(
+                response: 400,
+                description: 'Données invalides'
+            )
+        ]
+    )]
     public function createFilm(Request $request, SerializerInterface $serializer): Response
     {
         $film = $serializer->deserialize($request->getContent(), Film::class, 'json');
@@ -111,7 +177,28 @@ class FilmController extends AbstractController
     }
 
     // This route is for editing an existing movie by ID
-    #[Route('/film/{id}', name: 'update_film', methods: ['PUT'])]
+    #[Route('api/film/{id}', name: 'update_film', methods: ['PUT'])]
+    #[OAPu\Put(
+        path: 'api/film/{id}',
+        summary: 'Mettre à jour un film',
+        tags: ['Film'],
+        requestBody: new OA\RequestBody(
+            description: 'Données mises à jour pour le film',
+            required: true,
+            content: new OA\JsonContent(ref: new Model(type: Film::class, groups: ['film']))
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Film mis à jour avec succès',
+                content: new OA\JsonContent(ref: new Model(type: Film::class, groups: ['film']))
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Film non trouvé'
+            )
+        ]
+    )]
     public function updateFilm(int $id, Request $request, SerializerInterface $serializer): Response
     {
         $film = $this->entityManager->getRepository(Film::class)->find($id);
@@ -143,7 +230,22 @@ class FilmController extends AbstractController
     }
 
     // This route is for deleting an existing movie by ID
-    #[Route('/film/{id}', name: 'delete_film', methods: ['DELETE'])]
+    #[Route('api/film/{id}', name: 'delete_film', methods: ['DELETE'])]
+    #[OAD\Delete(
+        path: 'api/film/{id}',
+        summary: 'Supprimer un film',
+        tags: ['Film'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Film supprimé avec succès'
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Film non trouvé'
+            )
+        ]
+    )]
     public function deleteFilm(int $id, SerializerInterface $serializer, Request $request): Response
     {
         $film = $this->entityManager->getRepository(Film::class)->find($id);
