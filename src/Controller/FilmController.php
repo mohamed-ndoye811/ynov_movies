@@ -152,7 +152,16 @@ class FilmController extends AbstractController
     )]
     public function createFilm(Request $request, SerializerInterface $serializer): Response
     {
+        $filmData = json_decode($request->getContent());
+
+        if(!isset($filmData?->nom)) {
+            return $this->json(['message' => "The field 'nom' is missing"], 400);
+        }
+
         $film = $serializer->deserialize($request->getContent(), Film::class, 'json');
+        if (!$film) {
+            return $this->json(['message' => 'Film not found'], 404);
+        }
         $this->entityManager->persist($film);
         $this->entityManager->flush();
 
