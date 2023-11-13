@@ -150,12 +150,21 @@ class FilmController extends AbstractController
             )
         ]
     )]
-    public function createFilm(Request $request, SerializerInterface $serializer): Response
+    public function createFilm(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager): Response
     {
         $filmData = json_decode($request->getContent());
 
         if(!isset($filmData?->nom)) {
             return $this->json(['message' => "The field 'nom' is missing"], 400);
+        }
+
+        if(!isset($filmData?->dateDeParution)) {
+            return $this->json(['message' => "The field 'dateDeParution' is missing"], 400);
+        }
+
+        $dbFilm = $entityManager->getRepository(Film::class)->findBy(["nom" => $filmData->nom]);
+        if($dbFilm) {
+            return $this->json(['message' => "The film '" . $filmData->nom . "' already exists!"], 409);
         }
 
         $film = $serializer->deserialize($request->getContent(), Film::class, 'json');
