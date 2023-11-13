@@ -71,11 +71,11 @@ class FilmController extends AbstractController
         $format = $request->getAcceptableContentTypes();
 
         if (in_array('application/xml', $format)) {
-            $responseContent = $serializer->serialize($films, 'xml', ['groups' => 'film']);
+            $responseContent = $serializer->serialize(["films" => $films], 'xml', ['groups' => 'film']);
             $contentType = 'application/xml';
         } else {
             // Default to JSON
-            $responseContent = $serializer->serialize($films, 'json', ['groups' => 'film']);
+            $responseContent = $serializer->serialize(["films" => $films], 'json', ['groups' => 'film']);
             $contentType = 'application/json';
         }
 
@@ -114,11 +114,11 @@ class FilmController extends AbstractController
 
         $format = $request->getAcceptableContentTypes();
         if (in_array('application/xml', $format)) {
-            $responseContent = $serializer->serialize($film, 'xml', ['groups' => 'film']);
+            $responseContent = $serializer->serialize(['film' => $film], 'xml', ['groups' => 'film']);
             $contentType = 'application/xml';
         } else {
             // Par défaut, on utilise le JSON
-            $responseContent = $serializer->serialize($film, 'json', ['groups' => 'film']);
+            $responseContent = $serializer->serialize(['film' => $film], 'json', ['groups' => 'film']);
             $contentType = 'application/json';
         }
 

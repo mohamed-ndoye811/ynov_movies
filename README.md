@@ -102,7 +102,7 @@ Cette route permet de récupérer une liste de tous les films.
 **Réponse :**
 ```json
 {
-    "movies": [
+    "films": [
         {
             "id": 1,
             "nom": "Nom du Film",
@@ -124,7 +124,7 @@ Cette route permet de récupérer un film spécifique.
 **Réponse :**
 ```json
 {
-    "movie": {
+    "film": {
         "id": 1,
         "nom": "Nom du Film",
         "description": "Description du Film",
