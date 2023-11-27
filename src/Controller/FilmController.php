@@ -292,4 +292,48 @@ class FilmController extends AbstractController
         return $response;
     }
 
+    // This route is for searching for a movie by title or description
+    #[Route('api/film/search/{searchTerm}', name: 'search_film', methods: ['GET'])]
+    #[OAG\Get(
+        path: 'api/film/search/{searchTerm}',
+        summary: 'Rechercher un film',
+        tags: ['Film'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Retourne une liste de films correspondants',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(ref: new Model(type: Film::class, groups: ['film']))
+                )
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Aucun film trouvé'
+            )
+        ]
+    )]
+    public function searchFilm(string $searchTerm, SerializerInterface $serializer, Request $request): Response
+    {
+        $films = $this->entityManager->getRepository(Film::class)->findByTitleOrDescription($searchTerm);
+        if (!$films) {
+            return $this->json(['message' => 'No films found'], 404);
+        }
+
+        $format = $request->getAcceptableContentTypes();
+        if (in_array('application/xml', $format)) {
+            $responseContent = $serializer->serialize(['films' => $films], 'xml', ['groups' => 'film']);
+            $contentType = 'application/xml';
+        } else {
+            // Par défaut, on utilise le JSON
+            $responseContent = $serializer->serialize(['films' => $films], 'json', ['groups' => 'film']);
+            $contentType = 'application/json';
+        }
+
+        $response = new Response($responseContent);
+        $response->headers->set('Content-Type', $contentType);
+        return $response;
+    }
+    
+
 }

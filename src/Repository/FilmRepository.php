@@ -52,4 +52,21 @@ class FilmRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * Recherche des films par titre ou description.
+     *
+     * @param string $searchTerm Le terme de recherche.
+     * @return Film[] Renvoie un tableau de films correspondants.
+     */
+    public function findByTitleOrDescription(string $searchTerm): array
+    {
+        $queryBuilder = $this->createQueryBuilder('f');
+        $queryBuilder->where('f.nom LIKE :searchTerm')
+                    ->orWhere('f.description LIKE :searchTerm')
+                    ->setParameter('searchTerm', '%' . $searchTerm . '%');
+
+        return $queryBuilder->getQuery()->getResult();
+    }
+
 }
