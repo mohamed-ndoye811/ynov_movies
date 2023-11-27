@@ -36,6 +36,9 @@ class FilmRepository extends ServiceEntityRepository
        ;
    }
 
+    /**
+     * @return Film|null Returns a Film object
+     */
    public function findOneBySomeField($value): ?Film
    {
        return $this->createQueryBuilder('f')
@@ -46,9 +49,16 @@ class FilmRepository extends ServiceEntityRepository
        ;
    }
 
-    public function findAllFilms(): array
+    /**
+     * Récupère tous les films.
+     *
+     * @return Film[] Renvoie un tableau de films.
+     */
+    public function findAllFilms(int $page = 1, int $pageSize = 10): array
     {
         return $this->createQueryBuilder('f')
+            ->setFirstResult(($page - 1) * $pageSize)
+            ->setMaxResults($pageSize)
             ->getQuery()
             ->getResult();
     }

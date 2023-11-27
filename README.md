@@ -103,6 +103,9 @@ L'API MOVIES_API supporte désormais les réponses en format JSON et XML. Les cl
 **GET** `/film/list`
 
 Cette route permet de récupérer une liste de tous les films.
+La pagination est activée.
+Pour récupérer une page spécifique, ajoutez le paramètre `page` à la requête. Et pour spécifier le nombre de films par page, ajoutez le paramètre `pageSize` à la requête. Par défaut, `page` est égal à 1 et `pageSize` est égal à 10.
+Par exemple, pour récupérer la page 2, utilisez `/film/list?page=2`.
 
 **Réponse :**
 ```json

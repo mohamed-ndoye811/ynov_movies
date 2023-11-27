@@ -67,7 +67,11 @@ class FilmController extends AbstractController
     )]
     public function list(SerializerInterface $serializer, Request $request): Response
     {
-        $films = $this->entityManager->getRepository(Film::class)->findAllFilms();
+        $page = $request->query->get('page', 1);
+        $pageSize = $request->query->get('pageSize', 10);
+
+        $films = $this->entityManager->getRepository(Film::class)->findAllFilms($page, $pageSize);
+        //$films = $this->entityManager->getRepository(Film::class)->findAllFilms();
         $format = $request->getAcceptableContentTypes();
 
         if (in_array('application/xml', $format)) {
@@ -334,6 +338,6 @@ class FilmController extends AbstractController
         $response->headers->set('Content-Type', $contentType);
         return $response;
     }
-    
+
 
 }
