@@ -37,6 +37,11 @@ Suivez ces étapes pour configurer l'environnement de développement.
    docker-compose exec web php bin/console doctrine:database:create
    docker-compose exec web php bin/console doctrine:migrations:migrate
    ```
+   
+3. Remplir la base de données :
+    ```bash
+    docker-compose exec web php bin/console doctrine:fixtures:load
+    ```
 
 ## Utilisation
 
@@ -102,7 +107,7 @@ Cette route permet de récupérer une liste de tous les films.
 **Réponse :**
 ```json
 {
-    "movies": [
+    "films": [
         {
             "id": 1,
             "nom": "Nom du Film",
@@ -124,7 +129,7 @@ Cette route permet de récupérer un film spécifique.
 **Réponse :**
 ```json
 {
-    "movie": {
+    "film": {
         "id": 1,
         "nom": "Nom du Film",
         "description": "Description du Film",
