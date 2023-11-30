@@ -23,4 +23,5 @@ RUN composer require symfony/maker-bundle --dev
 RUN composer require symfony/orm-pack
 RUN composer require doctrine/doctrine-fixtures-bundle --dev
 RUN composer require fakerphp/faker
+RUN composer install
 
