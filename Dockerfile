@@ -5,8 +5,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
-    wget \
-    clean
+    wget
 RUN apt-get update && apt-get install -y libpq-dev \
     && docker-php-ext-install pdo_pgsql
 

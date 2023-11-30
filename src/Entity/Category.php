@@ -2,13 +2,21 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\GetCollection;
 use App\Repository\CategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Metadata\ApiResource;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
+#[ApiResource(
+    operations: [
+        new GetCollection(
+            normalizationContext: ['groups' => 'category:read'])
+    ]
+)]
 class Category
 {
     #[ORM\Id]
@@ -17,7 +25,7 @@ class Category
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(["category"])]
+    #[Groups(["category", "category:read"])]
     private ?string $name = null;
 
     #[ORM\ManyToMany(targetEntity: Film::class, mappedBy: 'category')]

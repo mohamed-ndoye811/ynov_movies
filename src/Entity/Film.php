@@ -2,13 +2,22 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\GetCollection;
 use App\Repository\FilmRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Metadata\ApiResource;
 
 #[ORM\Entity(repositoryClass: FilmRepository::class)]
+#[ApiResource(
+    operations: [
+        new GetCollection(
+            normalizationContext: ['groups' => 'film:read']
+        )
+    ],
+)]
 class Film
 {
     #[ORM\Id]
@@ -18,7 +27,7 @@ class Film
     private ?int $id = null;
 
     #[ORM\Column(length: 128)]
-    #[Groups(["film"])]
+    #[Groups(["film", "film:read"])]
     private ?string $nom = null;
 
     #[ORM\Column(type: "text", length: 2048)]

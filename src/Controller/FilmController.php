@@ -71,15 +71,16 @@ class FilmController extends AbstractController
         $pageSize = $request->query->get('pageSize', 10);
 
         $films = $this->entityManager->getRepository(Film::class)->findAllFilms($page, $pageSize);
-        //$films = $this->entityManager->getRepository(Film::class)->findAllFilms();
         $format = $request->getAcceptableContentTypes();
 
         if (in_array('application/xml', $format)) {
-            $responseContent = $serializer->serialize(["films" => $films], 'xml', ['groups' => 'film']);
+            $responseContent = $serializer->serialize(["films" => $films], 'xml',
+                ['groups' => ['film', 'category:read']]);
             $contentType = 'application/xml';
         } else {
             // Default to JSON
-            $responseContent = $serializer->serialize(["films" => $films], 'json', ['groups' => 'film']);
+            $responseContent = $serializer->serialize(["films" => $films], 'json',
+                ['groups' => ['film', 'category:read']]);
             $contentType = 'application/json';
         }
 
@@ -118,11 +119,13 @@ class FilmController extends AbstractController
 
         $format = $request->getAcceptableContentTypes();
         if (in_array('application/xml', $format)) {
-            $responseContent = $serializer->serialize(['film' => $film], 'xml', ['groups' => 'film']);
+            $responseContent = $serializer->serialize(['film' => $film], 'xml',
+                ['groups' => ['film', 'category:read']]);
             $contentType = 'application/xml';
         } else {
             // Par défaut, on utilise le JSON
-            $responseContent = $serializer->serialize(['film' => $film], 'json', ['groups' => 'film']);
+            $responseContent = $serializer->serialize(['film' => $film], 'json',
+                ['groups' => ['film', 'category:read']]);
             $contentType = 'application/json';
         }
 
@@ -338,6 +341,4 @@ class FilmController extends AbstractController
         $response->headers->set('Content-Type', $contentType);
         return $response;
     }
-
-
 }

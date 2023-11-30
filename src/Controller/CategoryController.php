@@ -27,11 +27,13 @@ class CategoryController extends AbstractController
         $format = $request->getAcceptableContentTypes();
 
         if (in_array('application/xml', $format)) {
-            $responseContent = $serializer->serialize(["categories" => $categories], 'xml', ['groups' => 'category']);
+            $responseContent = $serializer->serialize(["categories" => $categories], 'xml',
+                ['groups' => ['category', 'film:read']]);
             $contentType = 'application/xml';
         } else {
             // Default to JSON
-            $responseContent = $serializer->serialize(["categories" => $categories], 'json', ['groups' => 'category']);
+            $responseContent = $serializer->serialize(["categories" => $categories], 'json',
+                ['groups' => ['category', 'film:read']]);
             $contentType = 'application/json';
         }
 
