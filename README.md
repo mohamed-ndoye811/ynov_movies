@@ -25,7 +25,7 @@ Suivez ces étapes pour configurer l'environnement de développement.
 
 ### Configurer Symfony
 
-1. Une fois les conteneurs Docker lancés, installez les dépendances de Symfony :
+1. Une fois les conteneurs Docker lancés, installez les dépendances de Symfony (Normalement c'est fait automatiquement) :
 
    ```bash
    docker-compose exec web composer install
@@ -73,7 +73,7 @@ Comming soon...
 
 ## Dociumentation API via Swagger
 
-Pour accéder à la documentation de l'API, ouvrez votre navigateur et allez à `http://localhost:8000/api/doc`.
+Pour accéder à la documentation de l'API, ouvrez votre navigateur et allez à "api/doc".
 
 ---
 

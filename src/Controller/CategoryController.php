@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 
+use Nelmio\ApiDocBundle\Annotation\Model;
+use OpenApi\Annotations as OA;
 class CategoryController extends AbstractController
 {
     private $entityManager;
@@ -20,6 +22,17 @@ class CategoryController extends AbstractController
     }
 
     #[Route('api/category/list', name: 'app_category', methods: ['GET'])]
+    /**
+     * @OA\Response(
+     *     response=200,
+     *     description="Returns the list of categories",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=Category::class, groups={"category", "film:read"}))
+     *     )
+     * )
+     * @OA\Tag(name="Category")
+     */
     public function index(SerializerInterface $serializer, Request $request): Response
     {
         $categories = $this->entityManager->getRepository(Category::class)->findAll();
