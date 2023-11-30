@@ -19,7 +19,7 @@ class CategoryController extends AbstractController
         $this->entityManager = $entityManager;
     }
 
-    #[Route('api/category', name: 'app_category', methods: ['GET'])]
+    #[Route('api/category/list', name: 'app_category', methods: ['GET'])]
     public function index(SerializerInterface $serializer, Request $request): Response
     {
         $categories = $this->entityManager->getRepository(Category::class)->findAll();

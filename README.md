@@ -71,6 +71,10 @@ Pour accéder à l'application, ouvrez votre navigateur et allez à `http://loca
 
 Comming soon...
 
+## Dociumentation API via Swagger
+
+Pour accéder à la documentation de l'API, ouvrez votre navigateur et allez à `http://localhost:8000/api/doc`.
+
 ---
 
 # Documentation API - Gestion de Films
@@ -98,9 +102,11 @@ L'API MOVIES_API supporte désormais les réponses en format JSON et XML. Les cl
 - [Création d'un Nouveau Film](#création-dun-nouveau-film)
 - [Modification d'un Film](#modification-dun-film)
 - [Suppression d'un Film](#suppression-dun-film)
+- [Recherche de Films](#recherche-de-films)
+- [Liste des Catégories](#liste-des-catégories)
 
 ## Récupération de tous les Films
-**GET** `/film/list`
+**GET** `api/film/list`
 
 Cette route permet de récupérer une liste de tous les films.
 La pagination est activée.
@@ -116,7 +122,8 @@ Par exemple, pour récupérer la page 2, utilisez `/film/list?page=2`.
             "nom": "Nom du Film",
             "description": "Description du Film",
             "dateDeParution": "YYYY-MM-DD",
-            "note": 5
+            "note": 5,
+            "category": "Category du Film"
         },
         ...
     ]
@@ -124,7 +131,7 @@ Par exemple, pour récupérer la page 2, utilisez `/film/list?page=2`.
 ```
 
 ## Récupération d'un Film Spécifique
-**GET** `/film/{id}`
+**GET** `api/film/{id}`
 - `{id}` : Identifiant du Film
 
 Cette route permet de récupérer un film spécifique.
@@ -137,13 +144,14 @@ Cette route permet de récupérer un film spécifique.
         "nom": "Nom du Film",
         "description": "Description du Film",
         "dateDeParution": "YYYY-MM-DD",
-        "note": 5
+        "note": 5,
+        "category": "Category du Film",
     }
 }
 ```
 
 ## Création d'un Nouveau Film
-**POST** `/film`
+**POST** `api/film`
 
 Cette route permet de créer un nouveau film.
 
@@ -153,7 +161,7 @@ Cette route permet de créer un nouveau film.
     "nom": "Nom du Film",
     "description": "Description du Film",
     "dateDeParution": "YYYY-MM-DD",
-    "note": 5
+    "note": 5,
 }
 ```
 
@@ -166,7 +174,7 @@ Cette route permet de créer un nouveau film.
 ```
 
 ## Modification d'un Film
-**PUT** `/film/{id}`
+**PUT** `api/film/{id}`
 - `{id}` : Identifiant du Film
 
 Cette route permet de modifier un film spécifique.
@@ -177,7 +185,7 @@ Cette route permet de modifier un film spécifique.
     "nom": "Nom du Film",
     "description": "Description du Film",
     "dateDeParution": "YYYY-MM-DD",
-    "note": 5
+    "note": 5,
 }
 ```
 
@@ -189,7 +197,7 @@ Cette route permet de modifier un film spécifique.
 ```
 
 ## Suppression d'un Film
-**DELETE** `/film/{id}`
+**DELETE** `api/film/{id}`
 - `{id}` : Identifiant du Film
 
 Cette route permet de supprimer un film spécifique.
@@ -198,5 +206,45 @@ Cette route permet de supprimer un film spécifique.
 ```json
 {
     "message": "Film deleted successfully"
+}
+```
+
+## Recherche de Films
+**GET** `api/film/search/{query}`
+- `{query}` : Requête de Recherche
+
+Cette route permet de rechercher des films par nom ou description.
+
+**Réponse :**
+```json
+{
+    "films": [
+        {
+            "id": 1,
+            "nom": "Nom du Film",
+            "description": "Description du Film",
+            "dateDeParution": "YYYY-MM-DD",
+            "note": 5,
+            "category": "Category du Film"
+        },
+        ...
+    ]
+}
+```
+
+## Liste des Catégories
+**GET** `api/category/list`
+
+Cette route permet de récupérer une liste de toutes les catégories.
+
+**Réponse :**
+```json
+{
+    "categories": [
+        {
+            "nom": "Nom de la Catégorie"
+        },
+        ...
+    ]
 }
 ```
