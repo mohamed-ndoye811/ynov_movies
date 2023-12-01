@@ -7,9 +7,21 @@ use App\Repository\FilmRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
+use JMS\Serializer\Annotation\Groups;
 use ApiPlatform\Metadata\ApiResource;
+use Hateoas\Configuration\Annotation as Hateoas;
 
+/**
+ * @Hateoas\Relation(
+ *      "self",
+ *      href = @Hateoas\Route(
+ *          "get_film",
+ *          parameters = { "id" = "expr(object.getId())" }
+ *      ),
+ *      exclusion = @Hateoas\Exclusion(groups="film")
+ * )
+ *
+ */
 #[ORM\Entity(repositoryClass: FilmRepository::class)]
 #[ApiResource(
     operations: [
