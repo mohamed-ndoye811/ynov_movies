@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use App\Repository\FilmRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -27,8 +28,10 @@ use Hateoas\Configuration\Annotation as Hateoas;
     operations: [
         new GetCollection(
             normalizationContext: ['groups' => 'film:read']
-        )
+        ),
+        new Patch(inputFormats: ['json' => ['application/merge-patch+json']]),
     ],
+    formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']]
 )]
 class Film
 {
@@ -53,6 +56,10 @@ class Film
     #[ORM\Column(type: "integer", nullable: true)]
     #[Groups(["film"])]
     private ?int $note = null;
+
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
+    #[Groups(["film"])]
+    private ?string $image = null;
 
     #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'films')]
     #[Groups(["film"])]
@@ -112,6 +119,18 @@ class Film
     public function setNote(?int $note): self
     {
         $this->note = $note;
+
+        return $this;
+    }
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(?string $image): self
+    {
+        $this->image = $image;
 
         return $this;
     }

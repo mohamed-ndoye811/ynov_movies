@@ -6,8 +6,8 @@
 
 Avant de commencer, assurez-vous d'avoir installé :
 
-- Docker
-- Docker Compose
+- Docker 🐳🐳
+- Docker Compose 
 
 ## Installation et Configuration
 
@@ -25,7 +25,7 @@ Suivez ces étapes pour configurer l'environnement de développement.
 
 ### Configurer Symfony
 
-1. Une fois les conteneurs Docker lancés, installez les dépendances de Symfony (Normalement c'est fait automatiquement) :
+1. Une fois les conteneurs Docker lancés, installez les dépendances de Symfony (Normalement, c'est fait automatiquement) :
 
    ```bash
    docker-compose exec web composer install
@@ -73,7 +73,7 @@ Comming soon...
 
 ## Dociumentation API via Swagger
 
-Pour accéder à la documentation de l'API, ouvrez votre navigateur et allez à "api/doc".
+Pour accéder à la documentation de l'API, ouvrez votre navigateur et allez à `http://localhost:8000/api/doc`.
 
 ---
 
@@ -104,6 +104,8 @@ L'API MOVIES_API supporte désormais les réponses en format JSON et XML. Les cl
 - [Suppression d'un Film](#suppression-dun-film)
 - [Recherche de Films](#recherche-de-films)
 - [Liste des Catégories](#liste-des-catégories)
+- [Liste des Films par Catégorie](#liste-des-films-par-catégorie)
+- [Upload du Poster d'un Film](#upload-du-poster-dun-film)
 
 ## Récupération de tous les Films
 **GET** `api/film/list`
@@ -246,5 +248,40 @@ Cette route permet de récupérer une liste de toutes les catégories.
         },
         ...
     ]
+}
+```
+
+## Liste des Films par Catégorie
+**GET** `api/category/list`
+
+Cette route permet de récupérer une liste de tous les films d'une catégorie spécifique.
+
+**Réponse :**
+```json
+{
+  "categories": [
+    {
+      "name": "Nom de la Catégorie",
+      "films": [
+        {
+          "nom": "Nom du Film"
+        }
+        ]
+    }
+]
+}
+```
+
+## Upload du Poster d'un Film
+**POST** `api/film/{id}/poster`
+- `{id}` : Identifiant du Film
+- `poster` : Poster du Film
+
+Cette route permet d'uploader le poster d'un film spécifique.
+
+**Réponse :**
+```json
+{
+    "message": "Poster uploaded successfully"
 }
 ```
