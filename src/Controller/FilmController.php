@@ -72,24 +72,11 @@ class FilmController extends AbstractController
      */
     public function list(SerializerInterface $serializer, Request $request): Response
     {
-        $context = SerializationContext::create()->setGroups(['film', 'category:read']);
         $page = $request->query->get('page', 1);
         $pageSize = $request->query->get('pageSize', 10);
 
         $films = $this->entityManager->getRepository(Film::class)->findAllFilms($page, $pageSize);
-        $format = $request->getAcceptableContentTypes();
-        if ($format == 'application/xml') {
-            $responseContent = $serializer->serialize(["films"=>$films], 'xml', $context);
-            $contentType = 'application/xml';
-        } else {
-            // Par défaut, on utilise le JSON
-            $responseContent = $serializer->serialize(["films"=>$films], 'json', $context);
-            $contentType = 'application/json';
-        }
-
-        $response = new Response($responseContent, 200);
-        $response->headers->set('Content-Type', $contentType);
-        return $response;
+        return $this->apiResponse($serializer, $films, $request->getAcceptableContentTypes(), '200', ['film', "category:read"]);
 
     }
 
@@ -317,12 +304,14 @@ class FilmController extends AbstractController
     public function apiResponse(SerializerInterface $serializer, $data, $format, $statusCode, $groups = null): Response
     {
 
+        $context = SerializationContext::create()->setGroups($groups);
+
         if ($format == 'application/xml') {
-            $responseContent = $serializer->serialize($data, 'xml', ['groups' => $groups]);
+            $responseContent = $serializer->serialize($data, 'xml', $context);
             $contentType = 'application/xml';
         } else {
             // Par défaut, on utilise le JSON
-            $responseContent = $serializer->serialize($data, 'json', ['groups' => $groups]);
+            $responseContent = $serializer->serialize($data, 'json', $context);
             $contentType = 'application/json';
         }
 
