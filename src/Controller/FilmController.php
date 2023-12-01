@@ -29,7 +29,7 @@ class FilmController extends AbstractController
     }
 
     // This route is for the index page of the FilmController
-    #[Route('api/film', name: 'app_film', methods: ['GET'])]
+    #[Route('api/film/test', name: 'app_film', methods: ['GET'])]
     /**
      * @OA\Response(
      *     response=200,
@@ -44,13 +44,16 @@ class FilmController extends AbstractController
     public function index(Request $request): JsonResponse
     {
         // If the request method is not GET, return an error message with status code 405
-        if ($request->getMethod() !== 'GET') {
-            return $this->json(['error' => 'Invalid request method'], 405);
+        try {
+            if ($request->getMethod() !== 'GET') {
+                throw new \Exception('Method not allowed', 405);
+            }
+        } catch (\Exception $e) {
+            return $this->json(['message' => $e->getMessage()], $e->getCode());
         }
         // Return a welcome message with the path of the controller
         return $this->json([
             'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/FilmController.php',
         ]);
     }
 
@@ -75,18 +78,19 @@ class FilmController extends AbstractController
 
         $films = $this->entityManager->getRepository(Film::class)->findAllFilms($page, $pageSize);
         $format = $request->getAcceptableContentTypes();
-        if (in_array('application/xml', $format)) {
-            $responseContent = $serializer->serialize(["films" => $films], 'xml', $context);
+        if ($format == 'application/xml') {
+            $responseContent = $serializer->serialize(["films"=>$films], 'xml', $context);
             $contentType = 'application/xml';
         } else {
-            // Default to JSON
-            $responseContent = $serializer->serialize(["films" => $films], 'json', $context);
+            // Par défaut, on utilise le JSON
+            $responseContent = $serializer->serialize(["films"=>$films], 'json', $context);
             $contentType = 'application/json';
         }
 
-        $response = new Response($responseContent);
+        $response = new Response($responseContent, 200);
         $response->headers->set('Content-Type', $contentType);
         return $response;
+
     }
 
     // This route is for getting a specific movie by ID
@@ -105,25 +109,16 @@ class FilmController extends AbstractController
     public function getFilm(int $id, SerializerInterface $serializer, Request $request): Response
     {
         $film = $this->entityManager->getRepository(Film::class)->find($id);
-        if (!$film) {
-            return $this->json(['message' => 'Film not found'], 404);
+        try {
+            if (!$film) {
+                throw new \Exception('Film not found', 404);
+            }
+        } catch (\Exception $e) {
+            return $this->json(['message' => $e->getMessage()], $e->getCode());
         }
 
-        $format = $request->getAcceptableContentTypes();
-        if (in_array('application/xml', $format)) {
-            $responseContent = $serializer->serialize(['film' => $film], 'xml',
-                ['groups' => ['film', 'category:read']]);
-            $contentType = 'application/xml';
-        } else {
-            // Par défaut, on utilise le JSON
-            $responseContent = $serializer->serialize(['film' => $film], 'json',
-                ['groups' => ['film', 'category:read']]);
-            $contentType = 'application/json';
-        }
-
-        $response = new Response($responseContent);
-        $response->headers->set('Content-Type', $contentType);
-        return $response;
+        return $this->apiResponse($serializer, ['film' => $film], $request->getAcceptableContentTypes()[0], 200,
+            ['film', 'category:read']);
     }
 
     // This route is for creating a new movie
@@ -173,24 +168,8 @@ class FilmController extends AbstractController
         $this->entityManager->persist($film);
         $this->entityManager->flush();
 
-        $responseData = [
-            'message' => 'Film created successfully',
-            'film' => $film
-        ];
-
-        $format = $request->getAcceptableContentTypes();
-        if (in_array('application/xml', $format)) {
-            $responseContent = $serializer->serialize($responseData, 'xml', ['groups' => 'film']);
-            $contentType = 'application/xml';
-        } else {
-            // Par défaut, on utilise le JSON
-            $responseContent = $serializer->serialize($responseData, 'json', ['groups' => 'film']);
-            $contentType = 'application/json';
-        }
-
-        $response = new Response($responseContent, 201);
-        $response->headers->set('Content-Type', $contentType);
-        return $response;
+        return $this->apiResponse($serializer, ['film' => $film], $request->getAcceptableContentTypes()[0], 201,
+            ['film', 'category:read']);
     }
 
     // This route is for editing an existing movie by ID
@@ -222,24 +201,8 @@ class FilmController extends AbstractController
         $serializer->deserialize($request->getContent(), Film::class, 'json', ['object_to_populate' => $film]);
         $this->entityManager->flush();
 
-        $responseData = [
-            'message' => 'Film updated successfully',
-            'film' => $film
-        ];
-
-        $format = $request->getAcceptableContentTypes();
-        if (in_array('application/xml', $format)) {
-            $responseContent = $serializer->serialize($responseData, 'xml', ['groups' => 'film']);
-            $contentType = 'application/xml';
-        } else {
-            // Par défaut, on utilise le JSON
-            $responseContent = $serializer->serialize($responseData, 'json', ['groups' => 'film']);
-            $contentType = 'application/json';
-        }
-
-        $response = new Response($responseContent, 200);
-        $response->headers->set('Content-Type', $contentType);
-        return $response;
+        return $this->apiResponse($serializer, ['film' => $film], $request->getAcceptableContentTypes()[0], 200,
+            ['film', 'category:read']);
     }
 
     // This route is for deleting an existing movie by ID
@@ -269,19 +232,8 @@ class FilmController extends AbstractController
             $statusCode = 200;
         }
 
-        $format = $request->getAcceptableContentTypes();
-        if (in_array('application/xml', $format)) {
-            $responseContent = $serializer->serialize($responseContent, 'xml');
-            $contentType = 'application/xml';
-        } else {
-            // Par défaut, on utilise le JSON
-            $responseContent = $serializer->serialize($responseContent, 'json');
-            $contentType = 'application/json';
-        }
-
-        $response = new Response($responseContent, $statusCode);
-        $response->headers->set('Content-Type', $contentType);
-        return $response;
+        return $this->apiResponse($serializer, $responseContent, $request->getAcceptableContentTypes()[0],
+            $statusCode);
     }
 
     // This route is for searching for a movie by title or description
@@ -300,23 +252,81 @@ class FilmController extends AbstractController
     public function searchFilm(string $searchTerm, SerializerInterface $serializer, Request $request): Response
     {
         $films = $this->entityManager->getRepository(Film::class)->findByTitleOrDescription($searchTerm);
-        if (!$films) {
-            return $this->json(['message' => 'No films found'], 404);
+        try {
+            if (!$films) {
+                throw new \Exception('No film found', 404);
+            }
+        } catch (\Exception $e) {
+            return $this->json(['message' => $e->getMessage()], $e->getCode());
         }
 
-        $format = $request->getAcceptableContentTypes();
-        if (in_array('application/xml', $format)) {
-            $responseContent = $serializer->serialize(['films' => $films], 'xml',
-                ['groups' => ['film', 'category:read']]);
+        return $this->apiResponse($serializer, ['films' => $films], $request->getAcceptableContentTypes()[0], 200,
+            ['film', 'category:read']);
+    }
+
+    // This route is for upload a poster for a movie
+    #[Route('api/film/{id}/upload', name: 'upload_film_poster', methods: ['POST'])]
+    /**
+     * @OA\RequestBody(
+     *    description="Poster du film à mettre à jour",
+     *     required=true,
+     *     @OA\MediaType(
+     *         mediaType="multipart/form-data",
+     *         @OA\Schema(
+     *             @OA\Property(
+     *                 property="poster",
+     *                 description="Poster du film",
+     *                 type="string",
+     *                 format="binary"
+     *             )
+     *         )
+     *     )
+     * )
+     * @OA\Response(
+     *     response=200,
+     *     description="Poster mis à jour avec succès",
+     *     @OA\JsonContent(ref=@Model(type=Film::class, groups={"film"}))
+     * )
+     * @OA\Response(
+     *     response=404,
+     *     description="Film non trouvé"
+     * )
+     * @OA\Tag(name="Film")
+     */
+    public function uploadFilmPoster(int $id, Request $request, SerializerInterface $serializer): Response {
+        $films = $this->entityManager->getRepository(Film::class)->find($id);
+
+        $poster = $request->files->get('poster');
+        try {
+            if (!$poster) {
+                throw new \Exception('Poster not found', 404);
+            }
+        } catch (\Exception $e) {
+            return $this->json(['message' => $e->getMessage()], $e->getCode());
+        }
+
+        $poster->move($this->getParameter('posters_directory'), $poster->getClientOriginalName());
+        $films->setPoster($poster->getClientOriginalName());
+        $this->entityManager->flush();
+
+       return $this->apiResponse($serializer, ['film' => $films], $request->getAcceptableContentTypes()[0], 200,
+            ['film', 'category:read']);
+    }
+
+    // this function is to return a response in JSON or XML format
+    public function apiResponse(SerializerInterface $serializer, $data, $format, $statusCode, $groups = null): Response
+    {
+
+        if ($format == 'application/xml') {
+            $responseContent = $serializer->serialize($data, 'xml', ['groups' => $groups]);
             $contentType = 'application/xml';
         } else {
             // Par défaut, on utilise le JSON
-            $responseContent = $serializer->serialize(['films' => $films], 'json',
-                ['groups' => ['film', 'category:read']]);
+            $responseContent = $serializer->serialize($data, 'json', ['groups' => $groups]);
             $contentType = 'application/json';
         }
 
-        $response = new Response($responseContent);
+        $response = new Response($responseContent, $statusCode);
         $response->headers->set('Content-Type', $contentType);
         return $response;
     }
