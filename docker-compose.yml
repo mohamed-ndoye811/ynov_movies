@@ -14,7 +14,7 @@ services:
         POSTGRES_USER: iannis_api
         POSTGRES_PASSWORD: iannis
       volumes:
-        - postgres_data:/var/lib/postgresql/dataostgresql/data:rw
+        - postgres_data:/var/lib/postgresql/datapostgresql/data:rw
 ###< doctrine/doctrine-bundle ###
 
 volumes:
