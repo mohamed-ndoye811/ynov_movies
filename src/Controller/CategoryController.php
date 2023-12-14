@@ -38,8 +38,6 @@ class CategoryController extends AbstractController
     {
         $categories = $this->entityManager->getRepository(Category::class)->findAll();
 
-        $format = $request->getAcceptableContentTypes();
-
         return $this->apiResponse($serializer, ["categories" => $categories], $request->getAcceptableContentTypes()[0], 200, ['category', 'film:read']);
     }
 
