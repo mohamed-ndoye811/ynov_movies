@@ -77,7 +77,6 @@ class FilmController extends AbstractController
 
         $films = $this->entityManager->getRepository(Film::class)->findAllFilms($page, $pageSize);
         return $this->apiResponse($serializer, $films, $request->getAcceptableContentTypes(), '200', ['film', "category:read"]);
-
     }
 
     // This route is for getting a specific movie by ID

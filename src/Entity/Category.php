@@ -3,19 +3,21 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use App\Repository\CategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
+use JMS\Serializer\Annotation\Groups;
 use ApiPlatform\Metadata\ApiResource;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
 #[ApiResource(
     operations: [
         new GetCollection(
-            normalizationContext: ['groups' => 'category:read'])
-    ]
+            normalizationContext: ['groups' => 'category:read']),
+        new Patch(inputFormats: ['json' => ['application/merge-patch+json']]),
+    ],
 )]
 class Category
 {
