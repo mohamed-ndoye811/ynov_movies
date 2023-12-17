@@ -78,5 +78,4 @@ class FilmRepository extends ServiceEntityRepository
 
         return $queryBuilder->getQuery()->getResult();
     }
-
 }

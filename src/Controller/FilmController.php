@@ -4,6 +4,7 @@ namespace App\Controller;
 
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
@@ -142,6 +143,12 @@ class FilmController extends AbstractController
             return $this->json(['message' => "The field 'dateDeParution' is missing"], 400);
         }
 
+        // Convert the date from string to DateTime object
+        $dateDeParution = \DateTime::createFromFormat('Y-m-d', $filmData->dateDeParution);
+        if (!$dateDeParution) {
+            return $this->json(['message' => "Invalid date format for 'dateDeParution'. Use 'Y-m-d' format."], 400);
+        }
+
         $dbFilm = $entityManager->getRepository(Film::class)->findBy(["nom" => $filmData->nom]);
         if($dbFilm) {
             return $this->json(['message' => "The film '" . $filmData->nom . "' already exists!"], 409);
@@ -151,10 +158,14 @@ class FilmController extends AbstractController
         if (!$film) {
             return $this->json(['message' => 'Film not found'], 404);
         }
+
+        // Set the dateDeParution with the DateTime object
+        $film->setDateDeParution($dateDeParution);
+
         $this->entityManager->persist($film);
         $this->entityManager->flush();
 
-        return $this->apiResponse($serializer, ['film' => $film], $request->getAcceptableContentTypes()[0], 201,
+        return $this->apiResponse($serializer, ['message' => 'Film created successfully', 'film' => $film], $request->getAcceptableContentTypes()[0], 201,
             ['film', 'category:read']);
     }
 
@@ -182,12 +193,33 @@ class FilmController extends AbstractController
         $film = $this->entityManager->getRepository(Film::class)->find($id);
         if (!$film) {
             return $this->json(['message' => 'Film not found'], 404);
+        } else {
+            $filmData = json_decode($request->getContent());
+
+            if(!isset($filmData?->nom)) {
+                return $this->json(['message' => "The field 'nom' is missing"], 400);
+            }
+
+            if(!isset($filmData?->dateDeParution)) {
+                return $this->json(['message' => "The field 'dateDeParution' is missing"], 400);
+            }
+
+            // Convert the date from string to DateTime object
+            $dateDeParution = \DateTime::createFromFormat('Y-m-d', $filmData->dateDeParution);
+            if (!$dateDeParution) {
+                return $this->json(['message' => "Invalid date format for 'dateDeParution'. Use 'Y-m-d' format."], 400);
+            }
+
+            $film->setNom($filmData->nom);
+            $film->setDescription($filmData->description);
+            $film->setDateDeParution($dateDeParution);
+            $film->setNote($filmData->note);
         }
 
-        $serializer->deserialize($request->getContent(), Film::class, 'json', ['object_to_populate' => $film]);
+        $this->entityManager->persist($film);
         $this->entityManager->flush();
 
-        return $this->apiResponse($serializer, ['film' => $film], $request->getAcceptableContentTypes()[0], 200,
+        return $this->apiResponse($serializer, ['message' => 'Film update successfully'] , $request->getAcceptableContentTypes()[0], 200,
             ['film', 'category:read']);
     }
 
@@ -218,8 +250,8 @@ class FilmController extends AbstractController
             $statusCode = 200;
         }
 
-        return $this->apiResponse($serializer, $responseContent, $request->getAcceptableContentTypes()[0],
-            $statusCode);
+        return $this->apiResponse($serializer, $responseContent, $request->getAcceptableContentTypes()[0], $statusCode,
+            ['film', 'category:read']);
     }
 
     // This route is for searching for a movie by title or description
@@ -280,22 +312,31 @@ class FilmController extends AbstractController
      * @OA\Tag(name="Film")
      */
     public function uploadFilmPoster(int $id, Request $request, SerializerInterface $serializer): Response {
-        $films = $this->entityManager->getRepository(Film::class)->find($id);
+        $film = $this->entityManager->getRepository(Film::class)->find($id);
 
-        $poster = $request->files->get('poster');
-        try {
-            if (!$poster) {
-                throw new \Exception('Poster not found', 404);
-            }
-        } catch (\Exception $e) {
-            return $this->json(['message' => $e->getMessage()], $e->getCode());
+        if (!$film) {
+            return $this->json(['message' => 'Film not found'], 404);
         }
 
-        $poster->move($this->getParameter('posters_directory'), $poster->getClientOriginalName());
-        $films->setPoster($poster->getClientOriginalName());
+        $poster = $request->files->get('poster');
+
+        if (!$poster) {
+            return $this->json(['message' => 'Poster not found'], 404);
+        }
+
+        $originalFilename = pathinfo($poster->getClientOriginalName(), PATHINFO_FILENAME);
+        $newFilename = $originalFilename.'-'.uniqid().'.'.$poster->guessExtension();
+
+        try {
+            $poster->move($this->getParameter('posters_directory'), $newFilename);
+        } catch (FileException $e) {
+            return $this->json(['message' => 'Failed to upload file'], 500);
+        }
+
+        $film->setImage($newFilename);
         $this->entityManager->flush();
 
-       return $this->apiResponse($serializer, ['film' => $films], $request->getAcceptableContentTypes()[0], 200,
+        return $this->apiResponse($serializer, ['film' => $film], $request->getAcceptableContentTypes()[0], 200,
             ['film', 'category:read']);
     }
 

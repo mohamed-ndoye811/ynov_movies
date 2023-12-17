@@ -8,6 +8,7 @@ Avant de commencer, assurez-vous d'avoir installé :
 
 - Docker 🐳🐳
 - Docker Compose 
+- Testeur d'API (Postman, Insomnia, etc.) Insomnia est recommandé.
 
 ## Installation et Configuration
 
@@ -25,7 +26,7 @@ Suivez ces étapes pour configurer l'environnement de développement.
 
 ### Configurer Symfony
 
-1. Une fois les conteneurs Docker lancés, installez les dépendances de Symfony (Normalement, c'est fait automatiquement) :
+1. Une fois les conteneurs Docker lancés, installez les dépendances de Symfony :
 
    ```bash
    docker-compose exec web composer install
@@ -90,11 +91,16 @@ L'API MOVIES_API supporte désormais les réponses en format JSON et XML. Les cl
 - Création d'un film (POST /film) : Crée un nouveau film. Le corps de la requête doit être au format JSON.
 - Mise à jour d'un film (PUT /film/{id}) : Met à jour un film spécifique. Remplacez {id} par l'ID du film. Le corps de la requête doit être au format JSON.
 - Suppression d'un film (DELETE /film/{id}) : Supprime un film spécifique. Remplacez {id} par l'ID du film.
+- Recherche de films (GET /film/search/{query}) : Recherche des films par nom ou description. Remplacez {query} par la requête de recherche.
+- Liste des films par catégorie (GET /category/list) : Renvoie une liste de tous les films d'une catégorie spécifique. Accepte application/json et application/xml.
+- Upload du poster d'un film (POST /film/{id}/poster) : Upload le poster d'un film spécifique. Remplacez {id} par l'ID du film. Le corps de la requête doit être au format JSON.
 
 ## Formats de Réponse
 
 - JSON : Pour recevoir la réponse en JSON, incluez Accept: application/json dans l'en-tête de la requête.
 - XML : Pour recevoir la réponse en XML, incluez Accept: application/xml dans l'en-tête de la requête.
+- Par défaut, l'API répondra en JSON si aucun format n'est spécifié.
+- Le JSON-HAL est utilisé pour les réponses JSON.
 
 ## Sommaire
 - [Récupération de tous les Films](#récupération-de-tous-les-films)
@@ -103,7 +109,6 @@ L'API MOVIES_API supporte désormais les réponses en format JSON et XML. Les cl
 - [Modification d'un Film](#modification-dun-film)
 - [Suppression d'un Film](#suppression-dun-film)
 - [Recherche de Films](#recherche-de-films)
-- [Liste des Catégories](#liste-des-catégories)
 - [Liste des Films par Catégorie](#liste-des-films-par-catégorie)
 - [Upload du Poster d'un Film](#upload-du-poster-dun-film)
 
@@ -125,7 +130,16 @@ Par exemple, pour récupérer la page 2, utilisez `/film/list?page=2`.
             "description": "Description du Film",
             "dateDeParution": "YYYY-MM-DD",
             "note": 5,
-            "category": "Category du Film"
+              "category": [
+                {
+                  "name": "Nom de la Catégorie"
+                }
+              ],
+              "_links": {
+                "self": {
+                  "href": "/api/film/1"
+                }
+              }
         },
         ...
     ]
@@ -147,7 +161,16 @@ Cette route permet de récupérer un film spécifique.
         "description": "Description du Film",
         "dateDeParution": "YYYY-MM-DD",
         "note": 5,
-        "category": "Category du Film",
+          "category": [
+            {
+              "name": "Nom de la Catégorie"
+            }
+          ],
+          "_links": {
+            "self": {
+              "href": "/api/film/1"
+            }
+          }
     }
 }
 ```
@@ -163,14 +186,26 @@ Cette route permet de créer un nouveau film.
     "nom": "Nom du Film",
     "description": "Description du Film",
     "dateDeParution": "YYYY-MM-DD",
-    "note": 5,
+    "note": 5
 }
 ```
 
 **Réponse :**
 ```json
 {
-    "message": "Film created successfully"
+  "message": "Film created successfully",
+  "film": {
+    "id": 1,
+    "nom": "Nom du Film",
+    "description": "Description du Film",
+    "date_de_parution": "2013-02-14T18:53:44+00:00",
+    "note": 5,
+    "_links": {
+      "self": {
+        "href": "/api/film/1"
+      }
+    }
+  }
 }
 
 ```
@@ -187,7 +222,7 @@ Cette route permet de modifier un film spécifique.
     "nom": "Nom du Film",
     "description": "Description du Film",
     "dateDeParution": "YYYY-MM-DD",
-    "note": 5,
+    "note": 5
 }
 ```
 
@@ -220,31 +255,23 @@ Cette route permet de rechercher des films par nom ou description.
 **Réponse :**
 ```json
 {
-    "films": [
+      "films": [
         {
-            "id": 1,
-            "nom": "Nom du Film",
-            "description": "Description du Film",
-            "dateDeParution": "YYYY-MM-DD",
-            "note": 5,
-            "category": "Category du Film"
-        },
-        ...
-    ]
-}
-```
-
-## Liste des Catégories
-**GET** `api/category/list`
-
-Cette route permet de récupérer une liste de toutes les catégories.
-
-**Réponse :**
-```json
-{
-    "categories": [
-        {
-            "nom": "Nom de la Catégorie"
+          "id": 2,
+          "nom": "Nom du Film",
+          "description": "Description du Film",
+          "date_de_parution": "1991-02-07T15:15:06+00:00",
+          "note": 5,
+          "category": [
+            {
+              "name": "Nom de la Catégorie"
+            }
+          ],
+          "_links": {
+            "self": {
+              "href": "/api/film/2"
+            }
+          }
         },
         ...
     ]
@@ -282,6 +309,23 @@ Cette route permet d'uploader le poster d'un film spécifique.
 **Réponse :**
 ```json
 {
-    "message": "Poster uploaded successfully"
+	"film": {
+		"id": 1,
+		"nom": "Nom du Film",
+		"description": "Description du Film",
+		"date_de_parution": "2013-02-14T08:14:03+00:00",
+		"note": 2,
+		"image": "poster.jpg",
+		"category": [
+			{
+				"name": "Nom de la Catégorie"
+			}
+		],
+		"_links": {
+			"self": {
+				"href": "/api/film/1"
+			}
+		}
+	}
 }
 ```

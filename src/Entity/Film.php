@@ -158,4 +158,11 @@ class Film
 
         return $this;
     }
+
+    public function setCategory(Collection $category): static
+    {
+        $this->category = $category;
+
+        return $this;
+    }
 }
