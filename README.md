@@ -109,8 +109,12 @@ L'API MOVIES_API supporte désormais les réponses en format JSON et XML. Les cl
 - [Modification d'un Film](#modification-dun-film)
 - [Suppression d'un Film](#suppression-dun-film)
 - [Recherche de Films](#recherche-de-films)
-- [Liste des Films par Catégorie](#liste-des-films-par-catégorie)
 - [Upload du Poster d'un Film](#upload-du-poster-dun-film)
+- [Liste des Films par Catégorie](#liste-des-films-par-catégorie)
+- [Liste une Catégorie](#liste-une-catégorie)
+- [Création d'une Catégorie](#création-dune-catégorie)
+- [Modification d'une Catégorie](#modification-dune-catégorie)
+- [Suppression d'une Catégorie](#suppression-dune-catégorie)
 
 ## Récupération de tous les Films
 **GET** `api/film/list`
@@ -278,27 +282,6 @@ Cette route permet de rechercher des films par nom ou description.
 }
 ```
 
-## Liste des Films par Catégorie
-**GET** `api/category/list`
-
-Cette route permet de récupérer une liste de tous les films d'une catégorie spécifique.
-
-**Réponse :**
-```json
-{
-  "categories": [
-    {
-      "name": "Nom de la Catégorie",
-      "films": [
-        {
-          "nom": "Nom du Film"
-        }
-        ]
-    }
-]
-}
-```
-
 ## Upload du Poster d'un Film
 **POST** `api/film/{id}/poster`
 - `{id}` : Identifiant du Film
@@ -329,3 +312,106 @@ Cette route permet d'uploader le poster d'un film spécifique.
 	}
 }
 ```
+
+## Liste des Films par Catégorie
+**GET** `api/category/list`
+
+Cette route permet de récupérer une liste de tous les films d'une catégorie spécifique.
+
+**Réponse :**
+```json
+{
+  "categories": [
+    {
+      "name": "Nom de la Catégorie",
+      "films": [
+        {
+          "nom": "Nom du Film"
+        }
+        ]
+    }
+]
+}
+```
+
+## Liste une Catégorie
+**GET** `api/category/{name}`
+- `{name}` : Nom de la Catégorie
+
+Cette route permet de récupérer une catégorie spécifique.
+
+**Réponse :**
+```json
+{
+  "category": {
+    "name": "Nom de la Catégorie",
+    "films": [
+      {
+        "nom": "Nom du Film"
+      }, 
+        ...
+    ]
+  }
+}
+```
+
+## Création d'une Catégorie
+**POST** `api/category`
+
+Cette route permet de créer une nouvelle catégorie.
+
+**Paramètres :**
+```json
+{
+    "name": "Nom de la Catégorie"
+}
+```
+
+**Réponse :**
+```json
+{
+  "message": "Category created successfully",
+  "category": {
+    "name": "Nom de la Catégorie"
+  }
+}
+```
+
+## Modification d'une Catégorie
+**PUT** `api/category/{name}`
+- `{name}` : Nom de la Catégorie
+
+Cette route permet de modifier une catégorie spécifique.
+
+**Paramètres :**
+```json
+{
+    "name": "Nouveaux Nom de la Catégorie"
+}
+```
+
+**Réponse :**
+```json
+{
+  "message": "Category updated successfully",
+  "category": {
+    "name": "Nouveaux Nom de la Catégorie",
+    "films": []
+  }
+}
+```
+
+## Suppression d'une Catégorie
+**DELETE** `api/category/{name}`
+- `{name}` : Nom de la Catégorie
+
+Cette route permet de supprimer une catégorie spécifique.
+
+**Réponse :**
+```json
+{
+  "message": "Category deleted successfully"
+}
+```
+
+
