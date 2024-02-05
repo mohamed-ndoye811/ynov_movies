@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 services:
   web:
     build: .
@@ -8,14 +8,35 @@ services:
       - .:/app
     command: symfony server:start --port=8000 --no-tls --allow-http
   db:
-      image: postgres
-      environment:
-        POSTGRES_DB: movies_api
-        POSTGRES_USER: iannis_api
-        POSTGRES_PASSWORD: iannis
-      volumes:
-        - postgres_data:/var/lib/postgresql/datapostgresql/data:rw
+    image: postgres
+    environment:
+      POSTGRES_DB: movies_api
+      POSTGRES_USER: iannis_api
+      POSTGRES_PASSWORD: iannis
+    volumes:
+      - postgres_data:/var/lib/postgresql/datapostgresql/data:rw
+  mailcatcher:
+    image: dockage/mailcatcher:0.9.0
+    restart: on-failure
+    ports:
+      - "1080:1080"
+      - "1025:1025"
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: 'rabbitmq'
+    ports:
+        - 5672:5672
+        - 15672:15672
+    volumes:
+        - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+        - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+    networks:
+        - rabbitmq_go_net
 ###< doctrine/doctrine-bundle ###
 
 volumes:
   postgres_data:
+
+networks:
+  rabbitmq_go_net:
+    driver: bridge
