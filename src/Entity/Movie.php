@@ -11,6 +11,9 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation\Groups;
 use ApiPlatform\Metadata\ApiResource;
 use Hateoas\Configuration\Annotation as Hateoas;
+use Symfony\Bridge\Doctrine\Types\UuidType;
+use Symfony\Component\Uid\Uuid;
+use Symfony\Component\Uid\UuidV4;
 
 /**
  * @Hateoas\Relation(
@@ -36,10 +39,11 @@ use Hateoas\Configuration\Annotation as Hateoas;
 class Movie
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: "uuid", unique: true)]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
     #[Groups(["movie"])]
-    private ?int $id = null;
+    private ?UuidV4 $id = null;
 
     #[ORM\Column(length: 128)]
     #[Groups(["movie", "movie:read"])]
@@ -70,7 +74,7 @@ class Movie
         $this->category = new ArrayCollection();
     }
 
-    public function getId(): ?int
+    public function getId(): ?Uuid
     {
         return $this->id;
     }
