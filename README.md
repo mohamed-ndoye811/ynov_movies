@@ -19,7 +19,7 @@ Suivez ces étapes pour configurer l'environnement de développement.
 1. Construisez les images Docker et lancez les conteneurs :
 
    ```bash
-   docker-compose up -d
+   docker compose up -d
    ```
 
    Ceci va télécharger et construire les images nécessaires et démarrer les conteneurs.
@@ -29,19 +29,19 @@ Suivez ces étapes pour configurer l'environnement de développement.
 1. Une fois les conteneurs Docker lancés, installez les dépendances de Symfony :
 
    ```bash
-   docker-compose exec web composer install
+   docker compose exec web composer install
    ```
 
 2. Créez et migrez votre base de données :
 
    ```bash
-   docker-compose exec web php bin/console doctrine:database:create
-   docker-compose exec web php bin/console doctrine:migrations:migrate
+   docker compose exec web php bin/console doctrine:database:create
+   docker compose exec web php bin/console doctrine:migrations:migrate
    ```
    
 3. Remplir la base de données :
     ```bash
-    docker-compose exec web php bin/console doctrine:fixtures:load
+    docker compose exec web php bin/console doctrine:fixtures:load
     ```
 
 ## Utilisation
@@ -53,19 +53,19 @@ Pour accéder à l'application, ouvrez votre navigateur et allez à `http://loca
 - Pour arrêter les conteneurs Docker :
 
   ```bash
-  docker-compose down
+  docker compose down
   ```
 
 - Pour entrer dans un conteneur Docker :
 
   ```bash
-  docker-compose exec [nom-du-service] bash
+  docker compose exec [nom-du-service] bash
   ```
 
 - Pour consulter les logs :
 
   ```bash
-  docker-compose logs [nom-du-service]
+  docker compose logs [nom-du-service]
   ```
 
 ## Développement
