@@ -19,7 +19,7 @@ class MovieFixtures extends Fixture implements DependentFixtureInterface
 
             $movie->setNom($faker->realText($faker->numberBetween(10, 50)));
             $movie->setDescription($faker->realText($faker->numberBetween(128, 256)));
-            $movie->setNote($faker->numberBetween(0, 5));
+            $movie->setRate($faker->numberBetween(0, 5));
             $movie->setDateDeParution($faker->dateTime());
             $movie->addCategory($this->getReference('categ-' . $faker->numberBetween(0, 11)));
             $manager->persist($movie);
