@@ -4,7 +4,7 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
-use App\Repository\FilmRepository;
+use App\Repository\MovieRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -16,53 +16,53 @@ use Hateoas\Configuration\Annotation as Hateoas;
  * @Hateoas\Relation(
  *      "self",
  *      href = @Hateoas\Route(
- *          "get_film",
+ *          "get_movie",
  *          parameters = { "id" = "expr(object.getId())" }
  *      ),
- *      exclusion = @Hateoas\Exclusion(groups="film")
+ *      exclusion = @Hateoas\Exclusion(groups="movie")
  * )
  *
  */
-#[ORM\Entity(repositoryClass: FilmRepository::class)]
+#[ORM\Entity(repositoryClass: MovieRepository::class)]
 #[ApiResource(
     operations: [
         new GetCollection(
-            normalizationContext: ['groups' => 'film:read']
+            normalizationContext: ['groups' => 'movie:read']
         ),
         new Patch(inputFormats: ['json' => ['application/merge-patch+json']]),
     ],
     formats: ['jsonld', 'json', 'html', 'jsonhal', 'csv' => ['text/csv']]
 )]
-class Film
+class Movie
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(["film"])]
+    #[Groups(["movie"])]
     private ?int $id = null;
 
     #[ORM\Column(length: 128)]
-    #[Groups(["film", "film:read"])]
+    #[Groups(["movie", "movie:read"])]
     private ?string $nom = null;
 
-    #[ORM\Column(type: "text", length: 2048)]
-    #[Groups(["film"])]
+    #[ORM\Column(type: "text", length: 4095)]
+    #[Groups(["movie"])]
     private ?string $description = null;
 
     #[ORM\Column(type: "datetime")]
-    #[Groups(["film"])]
+    #[Groups(["movie"])]
     private ?\DateTimeInterface $dateDeParution = null;
 
     #[ORM\Column(type: "integer", nullable: true)]
-    #[Groups(["film"])]
-    private ?int $note = null;
+    #[Groups(["movie"])]
+    private ?int $rate = null;
 
     #[ORM\Column(type: "string", length: 255, nullable: true)]
-    #[Groups(["film"])]
+    #[Groups(["movie"])]
     private ?string $image = null;
 
-    #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'films')]
-    #[Groups(["film"])]
+    #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'movies')]
+    #[Groups(["movie"])]
     private Collection $category;
 
     public function __construct()
@@ -111,14 +111,14 @@ class Film
         return $this;
     }
 
-    public function getNote(): ?int
+    public function getRate(): ?int
     {
-        return $this->note;
+        return $this->rate;
     }
 
-    public function setNote(?int $note): self
+    public function setRate(?int $rate): self
     {
-        $this->note = $note;
+        $this->rate = $rate;
 
         return $this;
     }

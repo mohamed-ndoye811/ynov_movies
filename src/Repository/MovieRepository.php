@@ -2,27 +2,27 @@
 
 namespace App\Repository;
 
-use App\Entity\Film;
+use App\Entity\Movie;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Film>
+ * @extends ServiceEntityRepository<Movie>
  *
- * @method Film|null find($id, $lockMode = null, $lockVersion = null)
- * @method Film|null findOneBy(array $criteria, array $orderBy = null)
- * @method Film[]    findAll()
- * @method Film[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Movie|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Movie|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Movie[]    findAll()
+ * @method Movie[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class FilmRepository extends ServiceEntityRepository
+class MovieRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Film::class);
+        parent::__construct($registry, Movie::class);
     }
 
    /**
-    * @return Film[] Returns an array of Film objects
+    * @return Movie[] Returns an array of Movie objects
     */
    public function findByExampleField($value): array
    {
@@ -37,9 +37,9 @@ class FilmRepository extends ServiceEntityRepository
    }
 
     /**
-     * @return Film|null Returns a Film object
+     * @return Movie|null Returns a Movie object
      */
-   public function findOneBySomeField($value): ?Film
+   public function findOneBySomeField($value): ?Movie
    {
        return $this->createQueryBuilder('f')
            ->andWhere('f.exampleField = :val')
@@ -50,11 +50,11 @@ class FilmRepository extends ServiceEntityRepository
    }
 
     /**
-     * Récupère tous les films.
+     * Récupère tous les movies.
      *
-     * @return Film[] Renvoie un tableau de films.
+     * @return Movie[] Renvoie un tableau de movies.
      */
-    public function findAllFilms(int $page = 1, int $pageSize = 10): array
+    public function findAllMovies(int $page = 1, int $pageSize = 10): array
     {
         return $this->createQueryBuilder('f')
             ->setFirstResult(($page - 1) * $pageSize)
@@ -64,10 +64,10 @@ class FilmRepository extends ServiceEntityRepository
     }
 
     /**
-     * Recherche des films par titre ou description.
+     * Recherche des movies par titre ou description.
      *
      * @param string $searchTerm Le terme de recherche.
-     * @return Film[] Renvoie un tableau de films correspondants.
+     * @return Movie[] Renvoie un tableau de movies correspondants.
      */
     public function findByTitleOrDescription(string $searchTerm): array
     {

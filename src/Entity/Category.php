@@ -30,13 +30,13 @@ class Category
     #[Groups(["category", "category:read"])]
     private ?string $name = null;
 
-    #[ORM\ManyToMany(targetEntity: Film::class, mappedBy: 'category')]
+    #[ORM\ManyToMany(targetEntity: Movie::class, mappedBy: 'category')]
     #[Groups(["category"])]
-    private Collection $films;
+    private Collection $movies;
 
     public function __construct()
     {
-        $this->films = new ArrayCollection();
+        $this->movies = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -45,11 +45,11 @@ class Category
     }
 
     /**
-     * @return Collection<int, Film>
+     * @return Collection<int, Movie>
      */
-    public function getFilms(): Collection
+    public function getMovies(): Collection
     {
-        return $this->films;
+        return $this->movies;
     }
 
     public function getName(): ?string

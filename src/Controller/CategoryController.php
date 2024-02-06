@@ -29,7 +29,7 @@ class CategoryController extends AbstractController
      *     description="Returns the list of categories",
      *     @OA\JsonContent(
      *        type="array",
-     *        @OA\Items(ref=@Model(type=Category::class, groups={"category", "film:read"}))
+     *        @OA\Items(ref=@Model(type=Category::class, groups={"category", "movie:read"}))
      *     )
      * )
      * @OA\Tag(name="Category")
@@ -39,7 +39,7 @@ class CategoryController extends AbstractController
         $categories = $this->entityManager->getRepository(Category::class)->findAll();
 
         return $this->apiResponse($serializer, ["categories" => $categories], $request->getAcceptableContentTypes()[0], 200,
-            ['category', 'film:read']);
+            ['category', 'movie:read']);
     }
 
     #[Route('api/category/{name}', name: 'app_category_show', methods: ['GET'])]
@@ -49,7 +49,7 @@ class CategoryController extends AbstractController
      *     description="Returns the category",
      *     @OA\JsonContent(
      *        type="array",
-     *        @OA\Items(ref=@Model(type=Category::class, groups={"category", "film:read"}))
+     *        @OA\Items(ref=@Model(type=Category::class, groups={"category", "movie:read"}))
      *     )
      * )
      * @OA\Tag(name="Category")
@@ -59,7 +59,7 @@ class CategoryController extends AbstractController
         $category = $this->entityManager->getRepository(Category::class)->findOneBy(['name' => $name]);
 
         return $this->apiResponse($serializer, ["category" => $category], $request->getAcceptableContentTypes()[0], 200,
-            ['category', 'film:read']);
+            ['category', 'movie:read']);
     }
 
     #[Route('api/category', name: 'create_category', methods: ['POST'])]
@@ -93,7 +93,7 @@ class CategoryController extends AbstractController
         $this->entityManager->flush();
 
         return $this->apiResponse($serializer, ['message' => 'Category created successfully', 'category' => $category], $request->getAcceptableContentTypes()[0], 201,
-            ['category', 'film:read']);
+            ['category', 'movie:read']);
     }
     #[Route('api/category/{name}', name: 'update_category', methods: ['PUT'])]
     /**
@@ -126,7 +126,7 @@ class CategoryController extends AbstractController
         $this->entityManager->flush();
 
         return $this->apiResponse($serializer, ['message' => 'Category updated successfully', 'category' => $category], $request->getAcceptableContentTypes()[0], 200,
-            ['category', 'film:read']);
+            ['category', 'movie:read']);
     }
 
     #[Route('api/category/{name}', name: 'delete_category', methods: ['DELETE'])]
