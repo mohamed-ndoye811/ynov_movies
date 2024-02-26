@@ -59,7 +59,7 @@ class MovieController extends AbstractController
      *     description="Returns the list of movies",
      *     @OA\JsonContent(
      *        type="array",
-     *        @OA\Items(ref=@Model(type=Movie::class, groups={"movie", "category:read"}))
+     *        @OA\Items(ref=@Model(type=Movie::class, groups={"movie"}))
      *     )
      * )
      * @OA\Tag(name="Movie")
@@ -72,7 +72,7 @@ class MovieController extends AbstractController
         );
 
         return $this->apiResponse($serializer, $movies, $request->getAcceptableContentTypes(), '200',
-            ['movie', "category:read"]);
+            ['movie']);
     }
 
     // This route is for getting a specific movie by ID
@@ -83,7 +83,7 @@ class MovieController extends AbstractController
      *     description="Returns a movie by ID",
      *     @OA\JsonContent(
      *        type="array",
-     *        @OA\Items(ref=@Model(type=Movie::class, groups={"movie", "category:read"}))
+     *        @OA\Items(ref=@Model(type=Movie::class, groups={"movie"}))
      *     )
      * )
      * @OA\Tag(name="Movie")
@@ -97,7 +97,7 @@ class MovieController extends AbstractController
         }
 
         return $this->apiResponse($serializer, ['movie' => $movie], $request->getAcceptableContentTypes()[0], 200,
-            ['movie', 'category:read']);
+            ['movie']);
     }
 
     // This route is for creating a new movie
@@ -155,7 +155,7 @@ class MovieController extends AbstractController
         $entityManager->flush();
 
         return $this->apiResponse($serializer, ['message' => 'Movie created successfully', 'movie' => $movie], $request->getAcceptableContentTypes()[0], 201,
-            ['movie', 'category:read']);
+            ['movie']);
     }
 
     // This route is for editing an existing movie by ID
@@ -209,7 +209,7 @@ class MovieController extends AbstractController
         $this->entityManager->flush();
 
         return $this->apiResponse($serializer, ['message' => 'Movie updated successfully'] , $request->getAcceptableContentTypes()[0], 200,
-            ['movie', 'category:read']);
+            ['movie']);
     }
 
     // This route is for deleting an existing movie by ID
@@ -241,7 +241,7 @@ class MovieController extends AbstractController
         }
 
         return $this->apiResponse($serializer, ['message' => $message], $request->getAcceptableContentTypes()[0], $statusCode,
-            ['movie', 'category:read']);
+            ['movie']);
     }
 
     // This route is for searching for a movie by title or description
@@ -252,7 +252,7 @@ class MovieController extends AbstractController
      *     description="Returns a list of movies matching the search term",
      *     @OA\JsonContent(
      *        type="array",
-     *        @OA\Items(ref=@Model(type=Movie::class, groups={"movie", "category:read"}))
+     *        @OA\Items(ref=@Model(type=Movie::class, groups={"movie"}))
      *     )
      * )
      * @OA\Tag(name="Movie")
@@ -266,7 +266,7 @@ class MovieController extends AbstractController
         }
 
         return $this->apiResponse($serializer, ['movies' => $movies], $request->getAcceptableContentTypes()[0], 200,
-            ['movie', 'category:read']);
+            ['movie']);
     }
 
     // This route is for upload a poster for a movie
@@ -324,7 +324,7 @@ class MovieController extends AbstractController
         $this->entityManager->flush();
 
         return $this->apiResponse($serializer, ['movie' => $movie], $request->getAcceptableContentTypes()[0], 200,
-            ['movie', 'category:read']);
+            ['movie']);
     }
 
     // this function is to return a response in JSON or XML format

@@ -8,7 +8,7 @@ use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
 
-class MovieFixtures extends Fixture implements DependentFixtureInterface
+class MovieFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
@@ -21,17 +21,9 @@ class MovieFixtures extends Fixture implements DependentFixtureInterface
             $movie->setDescription($faker->realText($faker->numberBetween(128, 256)));
             $movie->setRate($faker->numberBetween(0, 5));
             $movie->setDateDeParution($faker->dateTime());
-            $movie->addCategory($this->getReference('categ-' . $faker->numberBetween(0, 11)));
             $manager->persist($movie);
         }
 
         $manager->flush();
-    }
-
-    public function getDependencies()
-    {
-        return [
-            CategoryFixtures::class
-        ];
     }
 }

@@ -41,9 +41,9 @@ class Movie
     #[ORM\Id]
     #[ORM\Column(type: "uuid", unique: true)]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
+    #[ORM\CustomIdGenerator('doctrine.uuid_generator')]
     #[Groups(["movie"])]
-    private ?UuidV4 $id = null;
+    private ?string $uid = null;
 
     #[ORM\Column(length: 128)]
     #[Groups(["movie", "movie:read"])]
@@ -65,16 +65,16 @@ class Movie
     #[Groups(["movie"])]
     private ?string $image = null;
 
-    #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'movies')]
-    #[Groups(["movie"])]
-    private Collection $category;
+//     #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'movies')]
+//     #[Groups(["movie"])]
+//     private Collection $category;
 
     public function __construct()
     {
-        $this->category = new ArrayCollection();
+//         $this->category = new ArrayCollection();
     }
 
-    public function getId(): ?Uuid
+    public function getId(): ?string
     {
         return $this->id;
     }
@@ -139,34 +139,34 @@ class Movie
         return $this;
     }
 
-    /**
-     * @return Collection<int, Category>
-     */
-    public function getCategory(): Collection
-    {
-        return $this->category;
-    }
-
-    public function addCategory(Category $category): static
-    {
-        if (!$this->category->contains($category)) {
-            $this->category->add($category);
-        }
-
-        return $this;
-    }
-
-    public function removeCategory(Category $category): static
-    {
-        $this->category->removeElement($category);
-
-        return $this;
-    }
-
-    public function setCategory(Collection $category): static
-    {
-        $this->category = $category;
-
-        return $this;
-    }
+//     /**
+//      * @return Collection<int, Category>
+//      */
+//     public function getCategory(): Collection
+//     {
+//         return $this->category;
+//     }
+//
+//     public function addCategory(Category $category): static
+//     {
+//         if (!$this->category->contains($category)) {
+//             $this->category->add($category);
+//         }
+//
+//         return $this;
+//     }
+//
+//     public function removeCategory(Category $category): static
+//     {
+//         $this->category->removeElement($category);
+//
+//         return $this;
+//     }
+//
+//     public function setCategory(Collection $category): static
+//     {
+//         $this->category = $category;
+//
+//         return $this;
+//     }
 }
