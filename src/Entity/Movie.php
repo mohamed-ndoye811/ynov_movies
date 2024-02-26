@@ -20,7 +20,7 @@ use Symfony\Component\Uid\UuidV4;
  *      "self",
  *      href = @Hateoas\Route(
  *          "get_movie",
- *          parameters = { "id" = "expr(object.getId())" }
+ *          parameters = { "uid" = "expr(object.getUid())" }
  *      ),
  *      exclusion = @Hateoas\Exclusion(groups="movie")
  * )
@@ -74,9 +74,9 @@ class Movie
 //         $this->category = new ArrayCollection();
     }
 
-    public function getId(): ?string
+    public function getUid(): ?string
     {
-        return $this->id;
+        return $this->uid;
     }
 
     public function getNom(): ?string
@@ -138,35 +138,4 @@ class Movie
 
         return $this;
     }
-
-//     /**
-//      * @return Collection<int, Category>
-//      */
-//     public function getCategory(): Collection
-//     {
-//         return $this->category;
-//     }
-//
-//     public function addCategory(Category $category): static
-//     {
-//         if (!$this->category->contains($category)) {
-//             $this->category->add($category);
-//         }
-//
-//         return $this;
-//     }
-//
-//     public function removeCategory(Category $category): static
-//     {
-//         $this->category->removeElement($category);
-//
-//         return $this;
-//     }
-//
-//     public function setCategory(Collection $category): static
-//     {
-//         $this->category = $category;
-//
-//         return $this;
-//     }
 }

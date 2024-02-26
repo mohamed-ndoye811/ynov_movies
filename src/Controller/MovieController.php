@@ -76,7 +76,7 @@ class MovieController extends AbstractController
     }
 
     // This route is for getting a specific movie by ID
-    #[Route('api/movies/{id}', name: 'get_movie', methods: ['GET'])]
+    #[Route('api/movies/{uid}', name: 'get_movie', methods: ['GET'])]
     /**
      * @OA\Response(
      *     response=200,
@@ -88,9 +88,9 @@ class MovieController extends AbstractController
      * )
      * @OA\Tag(name="Movie")
      */
-    public function getMovie(int $id, SerializerInterface $serializer, Request $request): Response
+    public function getMovie(int $uid, SerializerInterface $serializer, Request $request): Response
     {
-        $movie = $this->entityManager->getRepository(Movie::class)->find($id);
+        $movie = $this->entityManager->getRepository(Movie::class)->find($uid);
 
         if (!$movie) {
             return $this->json(['message' => 'Movie not found'], 404);
@@ -159,7 +159,7 @@ class MovieController extends AbstractController
     }
 
     // This route is for editing an existing movie by ID
-    #[Route('api/movies/{id}', name: 'update_movie', methods: ['PUT'])]
+    #[Route('api/movies/{uid}', name: 'update_movie', methods: ['PUT'])]
     /**
      * @OA\RequestBody(
      *    description="Données du movie à mettre à jour",
@@ -177,9 +177,9 @@ class MovieController extends AbstractController
      * )
      * @OA\Tag(name="Movie")
      */
-    public function updateMovie(int $id, Request $request, SerializerInterface $serializer): Response
+    public function updateMovie(int $uid, Request $request, SerializerInterface $serializer): Response
     {
-        $movie = $this->entityManager->getRepository(Movie::class)->find($id);
+        $movie = $this->entityManager->getRepository(Movie::class)->find($uid);
         if (!$movie) {
             return $this->json(['message' => 'Movie not found'], 404);
         }
@@ -213,7 +213,7 @@ class MovieController extends AbstractController
     }
 
     // This route is for deleting an existing movie by ID
-    #[Route('api/movies/{id}', name: 'delete_movie', methods: ['DELETE'])]
+    #[Route('api/movies/{uid}', name: 'delete_movie', methods: ['DELETE'])]
     /**
      * @OA\Response(
      *     response=200,
@@ -226,9 +226,9 @@ class MovieController extends AbstractController
      * )
      * @OA\Tag(name="Movie")
      */
-    public function deleteMovie(int $id, SerializerInterface $serializer, Request $request): Response
+    public function deleteMovie(int $uid, SerializerInterface $serializer, Request $request): Response
     {
-        $movie = $this->entityManager->getRepository(Movie::class)->find($id);
+        $movie = $this->entityManager->getRepository(Movie::class)->find($uid);
 
         if ($movie) {
             $this->entityManager->remove($movie);
@@ -270,7 +270,7 @@ class MovieController extends AbstractController
     }
 
     // This route is for upload a poster for a movie
-    #[Route('api/movies/{id}/upload', name: 'upload_movie_poster', methods: ['POST'])]
+    #[Route('api/movies/{uid}/upload', name: 'upload_movie_poster', methods: ['POST'])]
     /**
      * @OA\RequestBody(
      *    description="Poster du movie à mettre à jour",
@@ -298,8 +298,8 @@ class MovieController extends AbstractController
      * )
      * @OA\Tag(name="Movie")
      */
-    public function uploadMoviePoster(int $id, Request $request, SerializerInterface $serializer): Response {
-        $movie = $this->entityManager->getRepository(Movie::class)->find($id);
+    public function uploadMoviePoster(int $uid, Request $request, SerializerInterface $serializer): Response {
+        $movie = $this->entityManager->getRepository(Movie::class)->find($uid);
 
         if (!$movie) {
             return $this->json(['message' => 'Movie not found'], 404);
