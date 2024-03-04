@@ -17,10 +17,10 @@ class MovieFixtures extends Fixture
         for ($i = 0; $i < 30; $i++) {
             $movie = new Movie();
 
-            $movie->setNom($faker->realText($faker->numberBetween(10, 50)));
-            $movie->setDescription($faker->realText($faker->numberBetween(128, 256)));
+            $movie->setName($faker->realText($faker->numberBetween(10, 128)));
+            $movie->setDescription($faker->realText($faker->numberBetween(128, 4096)));
             $movie->setRate($faker->numberBetween(0, 5));
-            $movie->setDateDeParution($faker->dateTime());
+            $movie->setDuration($faker->numberBetween(1, 240));
             $manager->persist($movie);
         }
 

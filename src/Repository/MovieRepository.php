@@ -29,7 +29,7 @@ class MovieRepository extends ServiceEntityRepository
        return $this->createQueryBuilder('f')
            ->andWhere('f.exampleField = :val')
            ->setParameter('val', $value)
-           ->orderBy('f.id', 'ASC')
+           ->orderBy('f.uuid', 'ASC')
            ->setMaxResults(10)
            ->getQuery()
            ->getResult()
@@ -72,7 +72,7 @@ class MovieRepository extends ServiceEntityRepository
     public function findByTitleOrDescription(string $searchTerm): array
     {
         $queryBuilder = $this->createQueryBuilder('f');
-        $queryBuilder->where('f.nom LIKE :searchTerm')
+        $queryBuilder->where('f.name LIKE :searchTerm')
                     ->orWhere('f.description LIKE :searchTerm')
                     ->setParameter('searchTerm', '%' . $searchTerm . '%');
 

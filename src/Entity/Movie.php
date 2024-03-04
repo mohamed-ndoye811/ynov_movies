@@ -45,33 +45,30 @@ class Movie
     #[Groups(["movie"])]
     private ?string $uid = null;
 
-    #[ORM\Column(length: 128)]
+    #[ORM\Column(length: 128, nullable: false)]
     #[Groups(["movie", "movie:read"])]
-    private ?string $nom = null;
+    private ?string $name = null;
 
-    #[ORM\Column(type: "text", length: 4095)]
+    #[ORM\Column(type: "text", length: 4095, nullable: false)]
     #[Groups(["movie"])]
     private ?string $description = null;
 
-    #[ORM\Column(type: "datetime")]
-    #[Groups(["movie"])]
-    private ?\DateTimeInterface $dateDeParution = null;
-
-    #[ORM\Column(type: "integer", nullable: true)]
+    #[ORM\Column(type: "integer", nullable: false)]
     #[Groups(["movie"])]
     private ?int $rate = null;
 
-    #[ORM\Column(type: "string", length: 255, nullable: true)]
+    #[ORM\Column(type: "integer", nullable: false)]
+    #[Assert\Range(
+            min: 1,
+            max: 240,
+            notInRangeMessage: 'Le film doit durer {{ min }} minute minimum and {{ max }} minutes maximum pour être enregistré',
+        )]
     #[Groups(["movie"])]
-    private ?string $image = null;
-
-//     #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'movies')]
-//     #[Groups(["movie"])]
-//     private Collection $category;
+    private ?int $duration = null;
 
     public function __construct()
     {
-//         $this->category = new ArrayCollection();
+
     }
 
     public function getUid(): ?string
@@ -79,14 +76,14 @@ class Movie
         return $this->uid;
     }
 
-    public function getNom(): ?string
+    public function getName(): ?string
     {
-        return $this->nom;
+        return $this->name;
     }
 
-    public function setNom(?string $nom): self
+    public function setName(?string $name): self
     {
-        $this->nom = $nom;
+        $this->name = $name;
 
         return $this;
     }
@@ -103,18 +100,6 @@ class Movie
         return $this;
     }
 
-    public function getDateDeParution(): ?\DateTimeInterface
-    {
-        return $this->dateDeParution;
-    }
-
-    public function setDateDeParution(?\DateTimeInterface $dateDeParution): self
-    {
-        $this->dateDeParution = $dateDeParution;
-
-        return $this;
-    }
-
     public function getRate(): ?int
     {
         return $this->rate;
@@ -127,15 +112,19 @@ class Movie
         return $this;
     }
 
-    public function getImage(): ?string
+    public function getDuration(): ?int
     {
-        return $this->image;
+        return $this->duration;
     }
 
-    public function setImage(?string $image): self
+    public function setDuration(?int $duration): self
     {
-        $this->image = $image;
+        $this->duration = $duration;
 
         return $this;
+    }
+
+    public function getMovieBody() {
+        return $this->movie_body;
     }
 }

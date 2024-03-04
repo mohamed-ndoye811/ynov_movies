@@ -88,7 +88,7 @@ class MovieController extends AbstractController
      * )
      * @OA\Tag(name="Movie")
      */
-    public function getMovie(int $uid, SerializerInterface $serializer, Request $request): Response
+    public function getMovie(string $uid, SerializerInterface $serializer, Request $request): Response
     {
         $movie = $this->entityManager->getRepository(Movie::class)->find($uid);
 
@@ -128,28 +128,21 @@ class MovieController extends AbstractController
         $movieData = json_decode($request->getContent(), true);
 
         // Check required fields
-        $requiredFields = ['nom', 'dateDeParution'];
+        $requiredFields = array_diff($this->entityManager->getClassMetadata(Movie::class)->getColumnNames(), ['uid']);
         foreach ($requiredFields as $field) {
             if (!isset($movieData[$field])) {
-                return $this->json(['message' => "The field '$field' is missing"], 400);
+               return $this->json(['message' => "The field '$field' is missing"], 400);
             }
         }
 
-        // Check date format
-        $dateDeParution = \DateTime::createFromFormat('Y-m-d', $movieData['dateDeParution']);
-        if (!$dateDeParution) {
-            return $this->json(['message' => "Invalid date format for 'dateDeParution'. Use 'Y-m-d' format."], 400);
-        }
-
         // Check if movie already exists
-        $dbMovie = $entityManager->getRepository(Movie::class)->findBy(["nom" => $movieData['nom']]);
+        $dbMovie = $entityManager->getRepository(Movie::class)->findBy(["name" => $movieData['name']]);
         if($dbMovie) {
-            return $this->json(['message' => "The movie '" . $movieData['nom'] . "' already exists!"], 409);
+            return $this->json(['message' => "The movie '" . $movieData['name'] . "' already exists!"], 409);
         }
 
         // Create new movie
         $movie = $serializer->deserialize($request->getContent(), Movie::class, 'json');
-        $movie->setDateDeParution($dateDeParution);
 
         $entityManager->persist($movie);
         $entityManager->flush();
@@ -177,7 +170,7 @@ class MovieController extends AbstractController
      * )
      * @OA\Tag(name="Movie")
      */
-    public function updateMovie(int $uid, Request $request, SerializerInterface $serializer): Response
+    public function updateMovie(string $uid, Request $request, SerializerInterface $serializer): Response
     {
         $movie = $this->entityManager->getRepository(Movie::class)->find($uid);
         if (!$movie) {
@@ -187,24 +180,18 @@ class MovieController extends AbstractController
         $movieData = json_decode($request->getContent(), true);
 
         // Check required fields
-        $requiredFields = ['nom', 'dateDeParution'];
+        $requiredFields = array_diff($this->entityManager->getClassMetadata(Movie::class)->getColumnNames(), ['uid']);
         foreach ($requiredFields as $field) {
             if (!isset($movieData[$field])) {
                 return $this->json(['message' => "The field '$field' is missing"], 400);
             }
         }
 
-        // Check date format
-        $dateDeParution = \DateTime::createFromFormat('Y-m-d', $movieData['dateDeParution']);
-        if (!$dateDeParution) {
-            return $this->json(['message' => "Invalid date format for 'dateDeParution'. Use 'Y-m-d' format."], 400);
-        }
-
-        $movie->setNom($movieData['nom']);
-        $movie->setDescription($movieData['description'] ?? null);
-        $movie->setDateDeParution($dateDeParution);
-        $movie->setNote($movieData['note'] ?? null);
-
+        $movie->setName($movieData['name']);
+        $movie->setDescription($movieData['description']);
+        $movie->setRate($movieData['rate']);
+        $movie->setDuration($movieData['duration']);
+//
         $this->entityManager->persist($movie);
         $this->entityManager->flush();
 
@@ -226,7 +213,7 @@ class MovieController extends AbstractController
      * )
      * @OA\Tag(name="Movie")
      */
-    public function deleteMovie(int $uid, SerializerInterface $serializer, Request $request): Response
+    public function deleteMovie(string $uid, SerializerInterface $serializer, Request $request): Response
     {
         $movie = $this->entityManager->getRepository(Movie::class)->find($uid);
 
@@ -298,7 +285,7 @@ class MovieController extends AbstractController
      * )
      * @OA\Tag(name="Movie")
      */
-    public function uploadMoviePoster(int $uid, Request $request, SerializerInterface $serializer): Response {
+    public function uploadMoviePoster(string $uid, Request $request, SerializerInterface $serializer): Response {
         $movie = $this->entityManager->getRepository(Movie::class)->find($uid);
 
         if (!$movie) {
