@@ -1,6 +1,7 @@
-version: "3"
+version: "3.2"
+
 services:
-  web:
+  api:
     build: .
     ports:
       - "8000:8000"
@@ -12,12 +13,11 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_DB: movies_api
+      POSTGRES_DB: reservations_api
       POSTGRES_USER: iannis_api
       POSTGRES_PASSWORD: iannis
     volumes:
       - postgres_data:/var/lib/postgresql/datapostgresql/data:rw
-###< doctrine/doctrine-bundle ###
 
 volumes:
   postgres_data:
