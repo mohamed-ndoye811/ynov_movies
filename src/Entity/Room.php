@@ -5,35 +5,49 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\RoomRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Uid\Uuid;
+use Hateoas\Configuration\Annotation as Hateoas;
 
+/**
+ * @Hateoas\Relation(
+ *      "self",
+ *      href = "expr('/room/' ~ object.getUid())",
+ *      exclusion = @Hateoas\Exclusion(groups="room")
+ * )
+ */
 #[ORM\Entity(repositoryClass: RoomRepository::class)]
 #[ApiResource]
 class Room
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
-    #[ORM\Column(type: 'uuid')]
+    #[ORM\Column(type: UuidType::NAME, unique: true)]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
     private ?Uuid $uid = null;
 
     #[ORM\Column(length: 128)]
     #[Assert\NotBlank]
     #[Assert\Length(
         max: 128,
-        maxMessage: 'The name of the room cannot be longer than {{ limit }} characters',
+        maxMessage: 'Le nom de la salle ne doit pas dépasser les 128 caractères',
     )]
+    #[Assert\NotBlank(message: "Le nom de la salle ('name')  est obligatoire")]
     private ?string $name = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'integer')]
     #[Assert\GreaterThan(
         value: 0,
-        message: "A room must have at least 1 seat"
+        message: "Une salle doit avoir au moins une place ('seats')"
     )]
+    #[Assert\NotBlank(message: "Le nombre de places ('seats') est obligatoire")]
     private ?int $seats = null;
+
+    public function __construct()
+    {
+        $this->uid = Uuid::v4();
+    }
 
     public function getId(): ?int
     {
