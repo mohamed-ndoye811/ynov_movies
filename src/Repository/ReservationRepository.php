@@ -45,4 +45,28 @@ class ReservationRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+    /**
+     * Récupère tous les reservations.
+     *
+     * @return Reservation[] Renvoie un tableau de reservations.
+     */
+    public function findAllReservations(int $page = 1, int $pageSize = 10): array
+    {
+        return $this->createQueryBuilder('f')
+            ->setFirstResult(($page - 1) * $pageSize)
+            ->setMaxResults($pageSize)
+            ->getQuery()
+            ->getResult();
+    }
+
+
+    public function findOneByUid($value): ?Reservation
+    {
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.uid = :val')
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

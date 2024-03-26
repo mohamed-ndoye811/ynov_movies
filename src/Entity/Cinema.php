@@ -35,7 +35,7 @@ class Cinema
 
     public function __construct()
     {
-        $this->uid = Uuid::v4();
+//        $this->uid = Uuid::v4();
     }
 
     public function getUid(): ?Uuid

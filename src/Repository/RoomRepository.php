@@ -45,4 +45,28 @@ class RoomRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+    /**
+     * Récupère tous les rooms.
+     *
+     * @return Room[] Renvoie un tableau de rooms.
+     */
+    public function findAllRooms(int $page = 1, int $pageSize = 10): array
+    {
+        return $this->createQueryBuilder('f')
+            ->setFirstResult(($page - 1) * $pageSize)
+            ->setMaxResults($pageSize)
+            ->getQuery()
+            ->getResult();
+    }
+
+
+    public function findOneByUid($value): ?Room
+    {
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.uid = :val')
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

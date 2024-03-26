@@ -30,6 +30,7 @@ class Sceance
 
     #[ORM\Column(type: 'uuid')]
     #[Assert\Uuid]
+    #[Groups(["sceance"])]
     private ?Uuid $movie = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
@@ -38,6 +39,7 @@ class Sceance
         value: 'now',
         message: "You can't plan a sceance in the past"
     )]
+    #[Groups(["sceance"])]
     private ?\DateTimeInterface $date = null;
 
     public function __construct()

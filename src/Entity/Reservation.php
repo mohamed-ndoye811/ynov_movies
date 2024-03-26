@@ -39,6 +39,7 @@ class Reservation
         notInRangeMessage: 'The rank cannot be lower than 0',
     )]
     #[Assert\NotBlank(message: "Le nom du cinéma est obligatoire")]
+    #[Groups(["reservation"])]
     private ?int $rank = null;
 
     #[ORM\Column(length: 16, type: 'string')]
@@ -47,6 +48,7 @@ class Reservation
         message: "Choose a valid status"
     )]
     #[Assert\NotBlank(message: "Le nom du cinéma est obligatoire")]
+    #[Groups(["reservation"])]
     private ?string $status = null;
 
     #[ORM\Column]
@@ -55,6 +57,7 @@ class Reservation
         message: "A reservation must have at least 1 seat to lock"
     )]
     #[Assert\NotBlank(message: "Le nombre de places est obligatoire")]
+    #[Groups(["reservation"])]
     private ?int $seats = null;
 
     public function __construct()

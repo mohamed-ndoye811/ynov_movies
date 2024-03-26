@@ -45,4 +45,28 @@ class SceanceRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+    /**
+     * Récupère tous les sceances.
+     *
+     * @return Sceance[] Renvoie un tableau de sceances.
+     */
+    public function findAllSceances(int $page = 1, int $pageSize = 10): array
+    {
+        return $this->createQueryBuilder('f')
+            ->setFirstResult(($page - 1) * $pageSize)
+            ->setMaxResults($pageSize)
+            ->getQuery()
+            ->getResult();
+    }
+
+
+    public function findOneByUid($value): ?Sceance
+    {
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.uid = :val')
+            ->setParameter('val', $value)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

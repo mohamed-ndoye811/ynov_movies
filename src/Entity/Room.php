@@ -5,6 +5,7 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\RoomRepository;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation\Groups;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Uid\Uuid;
@@ -34,6 +35,7 @@ class Room
         maxMessage: 'Le nom de la salle ne doit pas dépasser les 128 caractères',
     )]
     #[Assert\NotBlank(message: "Le nom de la salle ('name')  est obligatoire")]
+    #[Groups(["room"])]
     private ?string $name = null;
 
     #[ORM\Column(type: 'integer')]
@@ -42,6 +44,7 @@ class Room
         message: "Une salle doit avoir au moins une place ('seats')"
     )]
     #[Assert\NotBlank(message: "Le nombre de places ('seats') est obligatoire")]
+    #[Groups(["room"])]
     private ?int $seats = null;
 
     public function __construct()

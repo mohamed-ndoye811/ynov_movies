@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Cinema;
 use Hateoas\Representation\CollectionRepresentation;
+use JMS\Serializer\DeserializationContext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -151,7 +152,10 @@ class CinemaController extends AbstractController
     {
         $existingCinema = $this->entityManager->getRepository(Cinema::class)->findOneByUid($uid);
 
-        $cinema = $serializer->deserialize($request->getContent(), Cinema::class, "json", [AbstractNormalizer::OBJECT_TO_POPULATE => $existingCinema]);
+        $deserializationContext = DeserializationContext::create();
+        $deserializationContext->setAttribute('deserialization-constructor-target', $existingCinema);
+
+        $serializer->deserialize($request->getContent(), Cinema::class, "json", $deserializationContext);
 
         $user_data = json_decode($request->getContent(), true);
 
@@ -163,7 +167,7 @@ class CinemaController extends AbstractController
             }
         }
 
-        $this->entityManager->persist($cinema);
+        $this->entityManager->persist($existingCinema);
 
         $this->entityManager->flush();
 
