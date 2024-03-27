@@ -20,9 +20,6 @@ final class Version20240325224609 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('DROP SEQUENCE reservation_id_seq CASCADE');
-        $this->addSql('DROP SEQUENCE room_id_seq CASCADE');
-        $this->addSql('DROP SEQUENCE sceance_id_seq CASCADE');
         $this->addSql('CREATE TABLE cinema (uid UUID NOT NULL, name VARCHAR(128) NOT NULL, PRIMARY KEY(uid))');
         $this->addSql('COMMENT ON COLUMN cinema.uid IS \'(DC2Type:uuid)\'');
         $this->addSql('CREATE TABLE reservation (uid UUID NOT NULL, rank INT NOT NULL, status VARCHAR(16) NOT NULL, seats INT NOT NULL, PRIMARY KEY(uid))');
