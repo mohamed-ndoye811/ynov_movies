@@ -29,19 +29,19 @@ Suivez ces étapes pour configurer l'environnement de développement.
 1. Une fois les conteneurs Docker lancés, installez les dépendances de Symfony :
 
    ```bash
-   docker compose exec api composer install
+   docker compose exec reservation composer install
    ```
 
 2. Créez et migrez votre base de données :
 
    ```bash
-   docker compose exec api php bin/console doctrine:database:create
-   docker compose exec api php bin/console doctrine:migrations:migrate
+   docker compose exec reservation php bin/console doctrine:database:create
+   docker compose exec reservation php bin/console doctrine:migrations:migrate
    ```
    
 3. Remplir la base de données :
     ```bash
-    docker compose exec api php bin/console doctrine:fixtures:load
+    docker compose exec reservation php bin/console doctrine:fixtures:load
     ```
 
 ## Utilisation

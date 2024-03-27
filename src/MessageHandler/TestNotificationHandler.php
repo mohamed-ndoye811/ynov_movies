@@ -10,6 +10,6 @@ class TestNotificationHandler
 {
     public function __invoke(TestNotification $message)
     {
-        dd($message->getContent());
+        return $message->getContent();
     }
 }
