@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Cinema;
+use App\Message\TestNotification;
 use Hateoas\Representation\CollectionRepresentation;
 use JMS\Serializer\DeserializationContext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,6 +19,7 @@ use JMS\Serializer\SerializerInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Validator\Exception\ValidationException;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 
 use Nelmio\ApiDocBundle\Annotation\Model;
@@ -46,8 +48,9 @@ class CinemaController extends AbstractController
      * )
      * @OA\Tag(name="cinema")
      */
-    public function list(SerializerInterface $serializer, Request $request): Response
+    public function list(SerializerInterface $serializer, Request $request, MessageBusInterface $bus): Response
     {
+        $bus->dispatch(new TestNotification('Hello Rabbitmq!'));
         $cinemas = $this->entityManager->getRepository(Cinema::class)->findAllCinemas(
             $request->query->get('page', 1),
             $request->query->get('pageSize', 10)

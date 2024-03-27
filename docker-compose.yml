@@ -18,6 +18,10 @@ services:
       POSTGRES_PASSWORD: iannis
     volumes:
       - postgres_data:/var/lib/postgresql/datapostgresql/data:rw
-
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
 volumes:
   postgres_data:

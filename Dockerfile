@@ -9,6 +9,12 @@ RUN apt-get update && apt-get install -y \
 RUN apt-get update && apt-get install -y libpq-dev \
     && docker-php-ext-install pdo_pgsql
 
+RUN apt-get install -y \
+        librabbitmq-dev \
+        libssh-dev \
+    && pecl install amqp \
+    && docker-php-ext-enable amqp
+
 RUN usermod -u 1000 www-data
 
 # Installer Composer
