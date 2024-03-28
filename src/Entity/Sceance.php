@@ -53,14 +53,13 @@ class Sceance
     #[Groups(["sceance"])]
     private ?\DateTimeImmutable $updatedAt = null;
 
+    #[ORM\ManyToOne(inversedBy: 'sceances')]
+    #[ORM\JoinColumn(name: "room", referencedColumnName: "uid")]
+    private ?Room $room = null;
+
     public function __construct()
     {
         $this->uid = Uuid::v4();
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
     }
 
     public function getUid(): ?Uuid
@@ -129,6 +128,18 @@ class Sceance
     public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getRoom(): ?Room
+    {
+        return $this->room;
+    }
+
+    public function setRoom(?Room $room): static
+    {
+        $this->room = $room;
 
         return $this;
     }

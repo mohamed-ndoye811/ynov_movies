@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\RoomRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation\Groups;
 use Symfony\Bridge\Doctrine\Types\UuidType;
@@ -61,14 +63,14 @@ class Room
     #[ORM\JoinColumn(name: "cinema", referencedColumnName: "uid")]
     private ?Cinema $cinema = null;
 
+    #[ORM\OneToMany(mappedBy: 'room', targetEntity: Sceance::class)]
+    #[ORM\JoinColumn(name: "sceances", referencedColumnName: "uid")]
+    private Collection $sceances;
+
     public function __construct()
     {
         $this->uid = Uuid::v4();
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
+        $this->sceances = new ArrayCollection();
     }
 
     public function getUid(): ?Uuid
@@ -149,6 +151,36 @@ class Room
     public function setCinema(?Cinema $cinema): static
     {
         $this->cinema = $cinema;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Sceance>
+     */
+    public function getSceances(): Collection
+    {
+        return $this->sceances;
+    }
+
+    public function addSceance(Sceance $sceance): static
+    {
+        if (!$this->sceances->contains($sceance)) {
+            $this->sceances->add($sceance);
+            $sceance->setRoom($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSceance(Sceance $sceance): static
+    {
+        if ($this->sceances->removeElement($sceance)) {
+            // set the owning side to null (unless already changed)
+            if ($sceance->getRoom() === $this) {
+                $sceance->setRoom(null);
+            }
+        }
 
         return $this;
     }
