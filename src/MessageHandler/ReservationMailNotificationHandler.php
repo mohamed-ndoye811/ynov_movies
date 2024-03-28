@@ -2,13 +2,13 @@
 // src/MessageHandler/SmsNotificationHandler.php
 namespace App\MessageHandler;
 
-use App\Message\TestNotification;
+use App\Message\ReservationMailNotification;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
-class TestNotificationHandler
+class ReservationMailNotificationHandler
 {
-    public function __invoke(TestNotification $message)
+    public function __invoke(ReservationMailNotification $message)
     {
         return $message->getContent();
     }

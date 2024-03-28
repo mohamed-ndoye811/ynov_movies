@@ -5,10 +5,12 @@ namespace App\Controller;
 use App\Entity\Reservation;
 use App\Entity\Room;
 use App\Entity\Sceance;
+use App\Message\ReservationMailNotification;
 use Hateoas\Representation\CollectionRepresentation;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\EntityManagerInterface;
@@ -28,10 +30,12 @@ use Symfony\Component\Uid\UuidV4;
 class ReservationController extends AbstractController
 {
     private $entityManager;
+    private MessageBusInterface $bus;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager, MessageBusInterface $bus)
     {
         $this->entityManager = $entityManager;
+        $this->bus = $bus;
     }
 
     // This route is for getting a list of all reservations
@@ -114,7 +118,7 @@ class ReservationController extends AbstractController
                 $serializer,
                 "Plus de place disponible pour cette séance",
                 $request->getAcceptableContentTypes(),
-                '422',
+                204,
                 ['reservation']
             );
         }
@@ -148,6 +152,8 @@ class ReservationController extends AbstractController
         $this->entityManager->persist($sceance);
 
         $this->entityManager->flush();
+
+        $this->bus->dispatch(new ReservationMailNotification($reservation));
 
         return $this->apiResponse(
             $serializer,

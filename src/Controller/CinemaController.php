@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Cinema;
-use App\Message\TestNotification;
+use App\Message\ReservationMailNotification;
 use Hateoas\Representation\CollectionRepresentation;
 use JMS\Serializer\DeserializationContext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -51,7 +51,7 @@ class CinemaController extends AbstractController
      */
     public function list(SerializerInterface $serializer, Request $request, MessageBusInterface $bus): Response
     {
-        $bus->dispatch(new TestNotification('Hello Rabbitmq!'));
+        $bus->dispatch(new ReservationMailNotification('Hello Rabbitmq!'));
         $cinemas = $this->entityManager->getRepository(Cinema::class)->findAllCinemas(
             $request->query->get('page', 1),
             $request->query->get('pageSize', 10)

@@ -15,7 +15,7 @@ framework:
 
     routing:
       # Route your messages to the transports
-      'App\Message\TestNotification': async
+      'App\Message\ReservationMailNotification': async
 
 # when@test:
 #    framework:
