@@ -1,6 +1,5 @@
-#!/bin/sh
-
 # Update composer dependencies
+composer install
 composer update
 
 # Create database and load fixtures

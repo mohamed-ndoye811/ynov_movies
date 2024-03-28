@@ -32,5 +32,4 @@ services:
 
     jms_serializer.object_constructor:
         stack:
-            - App\Service\CustomObjectConstructor: [ '@doctrine', '@.inner' ]
             - JMS\Serializer\Construction\UnserializeObjectConstructor: ~

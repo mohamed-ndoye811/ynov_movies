@@ -11,7 +11,7 @@ services:
       JWT_SECRET_KEY: /app/config/jwt/private.pem
       JWT_PUBLIC_KEY: /app/config/jwt/public.pem
       JWT_PASSPHRASE: ${JWT_PASSPHRASE}
-    command: ./start.sh
+    command: sh start.sh
   db:
     image: postgres
     ports:

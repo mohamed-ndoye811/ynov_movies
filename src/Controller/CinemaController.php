@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\EntityManagerInterface;
-// use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Serializer\SerializerInterface as Nserializer;
 use Symfony\Component\HttpFoundation\Response;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
@@ -151,26 +151,28 @@ class CinemaController extends AbstractController
      * )
      * @OA\Tag(name="cinema")
      */
-    public function edit(UuidV4 $uid, SerializerInterface $serializer, Request $request): Response
+    public function edit(UuidV4 $uid, SerializerInterface $serializer, Nserializer $nserializer, Cinema $cinema, Request $request, ValidatorInterface $validator): Response
     {
-        $existingCinema = $this->entityManager->getRepository(Cinema::class)->findOneByUid($uid);
 
-        $deserializationContext = DeserializationContext::create();
-        $deserializationContext->setAttribute('deserialization-constructor-target', $existingCinema);
+        $nserializer->deserialize($request->getContent(), Cinema::class, 'json', [
+            AbstractNormalizer::OBJECT_TO_POPULATE => $cinema
+        ]);
 
-        $serializer->deserialize($request->getContent(), Cinema::class, "json", $deserializationContext);
-
-        $user_data = json_decode($request->getContent(), true);
-
-        // Check required fields
-        $requiredFields = ['name'];
-        foreach ($requiredFields as $field) {
-            if (!isset($user_data[$field])) {
-                return $this->json(['message' => "Le contenu de l'objet cinema dans le body est invalide, le champ '$field' est manquant"], 422);
-            }
+        $errors = $validator->validate($cinema);
+        if ($errors->count() > 0) {
+            return $this->apiResponse(
+                $serializer,
+                [
+                    "status" => 422,
+                    "message" => "Le contenu de l'objet cinema dans le body est invalide"
+                ],
+                $request->getAcceptableContentTypes(),
+                '422',
+                ['cinema']
+            );
         }
 
-        $this->entityManager->persist($existingCinema);
+        $this->entityManager->persist($cinema);
 
         $this->entityManager->flush();
 
