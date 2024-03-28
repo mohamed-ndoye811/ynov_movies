@@ -27,6 +27,7 @@ class Room
     #[ORM\Column(type: UuidType::NAME, unique: true)]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
+    #[Groups(["room"])]
     private ?Uuid $uid = null;
 
     #[ORM\Column(length: 128)]
@@ -55,6 +56,10 @@ class Room
     #[ORM\Column]
     #[Groups(["room"])]
     private ?\DateTimeImmutable $updatedAt = null;
+
+    #[ORM\ManyToOne(inversedBy: 'rooms')]
+    #[ORM\JoinColumn(name: "cinema", referencedColumnName: "uid")]
+    private ?Cinema $cinema = null;
 
     public function __construct()
     {
@@ -132,6 +137,18 @@ class Room
     public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getCinema(): ?Cinema
+    {
+        return $this->cinema;
+    }
+
+    public function setCinema(?Cinema $cinema): static
+    {
+        $this->cinema = $cinema;
 
         return $this;
     }

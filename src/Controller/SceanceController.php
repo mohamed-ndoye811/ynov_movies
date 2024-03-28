@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\EntityManagerInterface;
-// use Symfony\Component\Serializer\SerializerInterface;
+ use Symfony\Component\Serializer\SerializerInterface as Nserializer;
 use Symfony\Component\HttpFoundation\Response;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
@@ -147,20 +147,24 @@ class SceanceController extends AbstractController
      * )
      * @OA\Tag(name="sceance")
      */
-    public function edit(UuidV4 $uid, SerializerInterface $serializer, Request $request): Response
+    public function edit(Sceance $sceance, SerializerInterface $serializer, Nserializer $nserializer, Request $request, ValidatorInterface $validator): Response
     {
-        $existingSceance = $this->entityManager->getRepository(Sceance::class)->findOneByUid($uid);
+        $nserializer->deserialize($request->getContent(), Sceance::class, 'json', [
+            AbstractNormalizer::OBJECT_TO_POPULATE => $sceance
+        ]);
 
-        $sceance = $serializer->deserialize($request->getContent(), Sceance::class, "json", [AbstractNormalizer::OBJECT_TO_POPULATE => $existingSceance]);
-
-        $user_data = json_decode($request->getContent(), true);
-
-        // Check required fields
-        $requiredFields = ['name'];
-        foreach ($requiredFields as $field) {
-            if (!isset($user_data[$field])) {
-                return $this->json(['message' => "Le contenu de l'objet sceance dans le body est invalide, le champ '$field' est manquant"], 422);
-            }
+        $errors = $validator->validate($sceance);
+        if ($errors->count() > 0) {
+            return $this->apiResponse(
+                $serializer,
+                [
+                    "status" => 422,
+                    "message" => "Objet non valide: " . $errors[0]->getMessage()
+                ],
+                $request->getAcceptableContentTypes(),
+                '422',
+                ['sceance']
+            );
         }
 
         $this->entityManager->persist($sceance);
@@ -170,7 +174,7 @@ class SceanceController extends AbstractController
         return $this->apiResponse(
             $serializer,
             [
-                'message' => "Le cinéma est mis à jour avec succès"
+                'message' => "La salle a été mise à jour avec succès"
             ],
             $request->getAcceptableContentTypes(),
             200,

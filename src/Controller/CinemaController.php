@@ -151,7 +151,7 @@ class CinemaController extends AbstractController
      * )
      * @OA\Tag(name="cinema")
      */
-    public function edit(UuidV4 $uid, SerializerInterface $serializer, Nserializer $nserializer, Cinema $cinema, Request $request, ValidatorInterface $validator): Response
+    public function edit(SerializerInterface $serializer, Nserializer $nserializer, Cinema $cinema, Request $request, ValidatorInterface $validator): Response
     {
 
         $nserializer->deserialize($request->getContent(), Cinema::class, 'json', [

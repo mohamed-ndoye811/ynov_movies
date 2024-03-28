@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Cinema;
 use App\Entity\Room;
 use Hateoas\Representation\CollectionRepresentation;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -10,11 +11,12 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\EntityManagerInterface;
-// use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Serializer\SerializerInterface as Nserializer;
 use Symfony\Component\HttpFoundation\Response;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Validator\Constraints\Json;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Validator\Exception\ValidationException;
 
@@ -33,7 +35,7 @@ class RoomController extends AbstractController
     }
 
     // This route is for getting a list of all rooms
-    #[Route('room', name: 'room_listing', methods: ['GET'])]
+    #[Route('cinema/{cinema_uid}/rooms', name: 'room_listing', methods: ['GET'])]
     /**
      * @OA\Response(
      *     response=200,
@@ -45,12 +47,9 @@ class RoomController extends AbstractController
      * )
      * @OA\Tag(name="room")
      */
-    public function list(SerializerInterface $serializer, Request $request): Response
+    public function list(UuidV4 $cinema_uid, SerializerInterface $serializer, Request $request): Response
     {
-        $rooms = $this->entityManager->getRepository(Room::class)->findAllRooms(
-            $request->query->get('page', 1),
-            $request->query->get('pageSize', 10)
-        );
+        $rooms = $this->entityManager->getRepository(Cinema::class)->find($cinema_uid)->getRooms();
 
         return $this->apiResponse(
             $serializer,
@@ -62,7 +61,7 @@ class RoomController extends AbstractController
     }
 
     // This route is for getting a specific room by ID
-    #[Route('room/{uid}', name: 'get_room', methods: ['GET'])]
+    #[Route('cinema/{cinema_uid}/rooms/{uid}', name: 'get_room', methods: ['GET'])]
     /**
      * @OA\Response(
      *     response=200,
@@ -74,11 +73,11 @@ class RoomController extends AbstractController
      * )
      * @OA\Tag(name="Room")
      */
-    public function getRoom(string $uid, SerializerInterface $serializer, Request $request): Response
+    public function getRoom(UuidV4 $cinema_uid, Room $room, SerializerInterface $serializer, Request $request): Response
     {
-        $room = $this->entityManager->getRepository(Room::class)->find($uid);
+        $cinema = $this->entityManager->getRepository(Cinema::class)->find($cinema_uid);
 
-        if (!$room) {
+        if (!$cinema) {
             return $this->json(['message' => 'Cinéma non trouvé'], 404);
         }
 
@@ -87,7 +86,7 @@ class RoomController extends AbstractController
     }
 
     // This route is for getting a list of all rooms
-    #[Route('room', name: 'create_room', methods: ['POST'])]
+    #[Route('cinema/{cinema_uid}/rooms', name: 'create_room', methods: ['POST'])]
     /**
      * @OA\Response(
      *     response=200,
@@ -99,14 +98,67 @@ class RoomController extends AbstractController
      * )
      * @OA\Tag(name="room")
      */
-    public function add(SerializerInterface $serializer, Request $request, ValidatorInterface $validator): Response
+    public function add(UuidV4 $cinema_uid, SerializerInterface $serializer, Request $request, ValidatorInterface $validator): Response
     {
-
+        $cinema = $this->entityManager->getRepository(Cinema::class)->find($cinema_uid);
         $room = $serializer->deserialize($request->getContent(), Room::class, "json");
+
 
         $errors = $validator->validate($room);
         if ($errors->count() > 0) {
-//            dump($errors->get(0));
+            return $this->apiResponse(
+                $serializer,
+                [
+                    "status" => 422,
+                    "message" => "Objet non valide: " . $errors[0]->getMessage()
+                ],
+                $request->getAcceptableContentTypes(),
+                '422',
+                ['room']
+            );
+        }
+
+        $cinema->addRoom($room);
+
+        $this->entityManager->persist($room);
+        $this->entityManager->persist($cinema);
+
+        $this->entityManager->flush();
+
+        return $this->apiResponse(
+            $serializer,
+            [
+                "room" => $room,
+                "message" => "Le cinéma est créé avec succès"
+            ],
+            $request->getAcceptableContentTypes(),
+            '201',
+            ['room']
+        );
+    }
+
+    // This route is for getting a list of all rooms
+    #[Route('cinema/{cinema_uid}/rooms/{uid}', name: 'edit_room', methods: ['PUT'])]
+    /**
+     * @OA\Response(
+     *     response=200,
+     *     description="Edit a room",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=room::class, groups={"room"}))
+     *     )
+     * )
+     * @OA\Tag(name="room")
+     */
+    public function edit(SerializerInterface $serializer, Nserializer $nserializer, Room $room, Request $request, ValidatorInterface $validator): Response
+    {
+
+        $nserializer->deserialize($request->getContent(), Room::class, 'json', [
+            AbstractNormalizer::OBJECT_TO_POPULATE => $room
+        ]);
+
+        $errors = $validator->validate($room);
+        if ($errors->count() > 0) {
             return $this->apiResponse(
                 $serializer,
                 [
@@ -126,52 +178,7 @@ class RoomController extends AbstractController
         return $this->apiResponse(
             $serializer,
             [
-                "room" => $room,
-                "message" => "Le cinéma est créé avec succès"
-            ],
-            $request->getAcceptableContentTypes(),
-            '201',
-            ['room']
-        );
-    }
-
-    // This route is for getting a list of all rooms
-    #[Route('room/{uid}', name: 'edit_room', methods: ['PUT'])]
-    /**
-     * @OA\Response(
-     *     response=200,
-     *     description="Edit a room",
-     *     @OA\JsonContent(
-     *        type="array",
-     *        @OA\Items(ref=@Model(type=room::class, groups={"room"}))
-     *     )
-     * )
-     * @OA\Tag(name="room")
-     */
-    public function edit(UuidV4 $uid, SerializerInterface $serializer, Request $request): Response
-    {
-        $existingRoom = $this->entityManager->getRepository(Room::class)->findOneByUid($uid);
-
-        $room = $serializer->deserialize($request->getContent(), Room::class, "json", [AbstractNormalizer::OBJECT_TO_POPULATE => $existingRoom]);
-
-        $user_data = json_decode($request->getContent(), true);
-
-        // Check required fields
-        $requiredFields = ['name'];
-        foreach ($requiredFields as $field) {
-            if (!isset($user_data[$field])) {
-                return $this->json(['message' => "Le contenu de l'objet room dans le body est invalide, le champ '$field' est manquant"], 422);
-            }
-        }
-
-        $this->entityManager->persist($room);
-
-        $this->entityManager->flush();
-
-        return $this->apiResponse(
-            $serializer,
-            [
-                'message' => "Le cinéma est mis à jour avec succès"
+                'message' => "La salle a été mise à jour avec succès"
             ],
             $request->getAcceptableContentTypes(),
             200,
@@ -181,7 +188,7 @@ class RoomController extends AbstractController
 
 
     // This route is for deleting an existing room by ID
-    #[Route('room/{uid}', name: 'delete_room', methods: ['DELETE'])]
+    #[Route('/cinema/{cinema_uid}/rooms/{uid}', name: 'delete_room', methods: ['DELETE'])]
     /**
      * @OA\Response(
      *     response=200,
@@ -194,17 +201,24 @@ class RoomController extends AbstractController
      * )
      * @OA\Tag(name="room")
      */
-    public function delete(string $uid, SerializerInterface $serializer, Request $request): Response
+    public function delete(UuidV4 $cinema_uid, UuidV4 $uid, SerializerInterface $serializer, Request $request): Response
     {
-        $room = $this->entityManager->getRepository(Room::class)->find($uid);
 
+        $cinema = $this->entityManager->getRepository(Cinema::class)->find($cinema_uid);
+
+        if (!$cinema) {
+            return $this->json(['message' => 'Cinéma non trouvé'], 404);
+        }
+
+        $room = $cinema->getRoom($uid);
         if ($room) {
+            $cinema->removeRoom($room);
             $this->entityManager->remove($room);
             $this->entityManager->flush();
-            $message = 'Le room a été supprimé avec succès';
+            $message = 'La salle a été supprimée avec succès';
             $statusCode = 200;
         } else {
-            $message = 'Le room est inconnu';
+            $message = 'La salle est inconnue';
             $statusCode = 404;
         }
 

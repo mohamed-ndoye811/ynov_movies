@@ -5,7 +5,10 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use App\Attribute\HateoasLink;
 use App\Repository\CinemaRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Uid\UuidV4;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Uid\Uuid;
 use Symfony\Bridge\Doctrine\Types\UuidType;
@@ -29,6 +32,7 @@ class Cinema
     #[ORM\Column(type: UuidType::NAME, unique: true)]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
+    #[Groups(["cinema"])]
     private ?Uuid $uid = null;
 
     #[ORM\Column(type: 'string', length: 128)]
@@ -44,9 +48,14 @@ class Cinema
     #[Groups(["cinema"])]
     private ?\DateTimeImmutable $updatedAt = null;
 
+    #[ORM\OneToMany(mappedBy: 'cinema', targetEntity: Room::class)]
+    #[ORM\JoinColumn(name: "rooms", referencedColumnName: "uid")]
+    private Collection $rooms;
+
     public function __construct()
     {
 //        $this->uid = Uuid::v4();
+        $this->rooms = new ArrayCollection();
     }
 
     public function getUid(): ?Uuid
@@ -103,6 +112,45 @@ class Cinema
     public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Room>
+     */
+    public function getRooms(): Collection
+    {
+        return $this->rooms;
+    }
+
+    public function getRoom(UuidV4 $targetRoom): Room | null
+    {
+        return $this->getRooms()->filter(
+            function ($room) use ($targetRoom) {
+                return ($targetRoom === $room->getUid());
+            }
+        )[0];
+    }
+
+    public function addRoom(Room $room): static
+    {
+        if (!$this->rooms->contains($room)) {
+            $this->rooms->add($room);
+            $room->setCinema($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRoom(Room $room): static
+    {
+        if ($this->rooms->removeElement($room)) {
+            // set the owning side to null (unless already changed)
+            if ($room->getCinema() === $this) {
+                $room->setCinema(null);
+            }
+        }
 
         return $this;
     }
