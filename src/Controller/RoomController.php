@@ -150,8 +150,21 @@ class RoomController extends AbstractController
      * )
      * @OA\Tag(name="room")
      */
-    public function edit(SerializerInterface $serializer, Nserializer $nserializer, Room $room, Request $request, ValidatorInterface $validator): Response
+    public function edit(UuidV4 $cinema_uid, UuidV4 $uid, SerializerInterface $serializer, Nserializer $nserializer, Request $request, ValidatorInterface $validator): Response
     {
+        $cinema = $this->entityManager->getRepository(Cinema::class)->find($cinema_uid);
+
+        if (!$cinema) {
+            return $this->apiResponse($serializer, ['message' => "Cinéma non trouvé"], $request->getAcceptableContentTypes()[0], 404,
+                ['room']);
+        }
+
+        $room = $cinema->getRoom($uid);
+
+        if(!$room) {
+            return $this->apiResponse($serializer, ['message' => "Salle non trouvé"], $request->getAcceptableContentTypes()[0], 404,
+                ['room']);
+        }
 
         $nserializer->deserialize($request->getContent(), Room::class, 'json', [
             AbstractNormalizer::OBJECT_TO_POPULATE => $room
@@ -207,10 +220,12 @@ class RoomController extends AbstractController
         $cinema = $this->entityManager->getRepository(Cinema::class)->find($cinema_uid);
 
         if (!$cinema) {
-            return $this->json(['message' => 'Cinéma non trouvé'], 404);
+            return $this->apiResponse($serializer, ['message' => "Cinéma non trouvé"], $request->getAcceptableContentTypes()[0], 404,
+                ['room']);
         }
 
         $room = $cinema->getRoom($uid);
+
         if ($room) {
             $cinema->removeRoom($room);
             $this->entityManager->remove($room);

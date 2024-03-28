@@ -124,13 +124,13 @@ class Cinema
         return $this->rooms;
     }
 
-    public function getRoom(UuidV4 $targetRoom): Room | null
+    public function getRoom(UuidV4 $targetRoom): Room | null | Collection
     {
         return $this->getRooms()->filter(
             function ($room) use ($targetRoom) {
-                return ($targetRoom === $room->getUid());
+                return ($room->getUid() == $targetRoom);
             }
-        )[0];
+        )->first();
     }
 
     public function addRoom(Room $room): static
