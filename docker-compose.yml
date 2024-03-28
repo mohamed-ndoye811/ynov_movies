@@ -7,7 +7,11 @@ services:
       - "8000:8000"
     volumes:
       - .:/app:rw
-    command: symfony server:start --port=8000 --no-tls --allow-http
+    environment:
+      JWT_SECRET_KEY: /app/config/jwt/private.pem
+      JWT_PUBLIC_KEY: /app/config/jwt/public.pem
+      JWT_PASSPHRASE: ${JWT_PASSPHRASE}
+    command: ./start.sh
   db:
     image: postgres
     ports:

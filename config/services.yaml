@@ -27,3 +27,5 @@ services:
     App\EventListener\ExceptionListener:
         tags:
             - { name: kernel.event_listener, event: kernel.exception }
+    App\Controller\SecurityController:
+        tags: [ 'controller.service_arguments' ]

@@ -36,6 +36,7 @@ Suivez ces étapes pour configurer l'environnement de développement.
 
    ```bash
    docker compose exec reservation php bin/console doctrine:database:create
+   docker compose exec reservation php bin/console make:migration
    docker compose exec reservation php bin/console doctrine:migrations:migrate
    ```
    
