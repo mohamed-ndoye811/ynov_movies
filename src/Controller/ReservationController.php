@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Reservation;
+use App\Entity\Room;
+use App\Entity\Sceance;
 use Hateoas\Representation\CollectionRepresentation;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -33,7 +35,7 @@ class ReservationController extends AbstractController
     }
 
     // This route is for getting a list of all reservations
-    #[Route('reservation', name: 'reservation_listing', methods: ['GET'])]
+    #[Route('movie/{movieUid}/reservations', name: 'reservation_listing', methods: ['GET'])]
     /**
      * @OA\Response(
      *     response=200,
@@ -87,7 +89,7 @@ class ReservationController extends AbstractController
     }
 
     // This route is for getting a list of all reservations
-    #[Route('reservation', name: 'create_reservation', methods: ['POST'])]
+    #[Route('movie/{movieUid}/reservations', name: 'create_reservation', methods: ['POST'])]
     /**
      * @OA\Response(
      *     response=200,
@@ -99,10 +101,30 @@ class ReservationController extends AbstractController
      * )
      * @OA\Tag(name="reservation")
      */
-    public function add(SerializerInterface $serializer, Request $request, ValidatorInterface $validator): Response
+    public function add(UuidV4 $movieUid, SerializerInterface $serializer, Request $request, ValidatorInterface $validator): Response
     {
+        $req = (array) json_decode($request->getContent());
+        $sceance = $this->entityManager->getRepository(Sceance::class)->find($req['sceance']);
+        $room = $this->entityManager->getRepository(Room::class)->find($req['room']);
 
-        $reservation = $serializer->deserialize($request->getContent(), Reservation::class, "json");
+        $seatsLeft = $room->getSeats() - $req['nbSeats'];
+
+        if($seatsLeft < 0) {
+            return $this->apiResponse(
+                $serializer,
+                "Plus de place disponible pour cette séance",
+                $request->getAcceptableContentTypes(),
+                '422',
+                ['reservation']
+            );
+        }
+
+        $reservation = new Reservation();
+        $reservation->setSeats($req['nbSeats']);
+        $reservation->setRank($room->getSeats());
+        $reservation->setExpiresAt(\DateTimeImmutable::createFromMutable($sceance->getDate()));
+        $reservation->setStatus(Reservation::STATUS_OPEN);
+
 
         $errors = $validator->validate($reservation);
         if ($errors->count() > 0) {
@@ -110,7 +132,7 @@ class ReservationController extends AbstractController
                 $serializer,
                 [
                     "status" => 422,
-                    "message" => "Le contenu de l'objet reservation dans le body est invalide"
+                    "message" => $errors[0]->getMessage()
                 ],
                 $request->getAcceptableContentTypes(),
                 '422',
@@ -118,7 +140,12 @@ class ReservationController extends AbstractController
             );
         }
 
+        $sceance->setMovie($movieUid);
+        $room->setSeats($seatsLeft);
+
         $this->entityManager->persist($reservation);
+        $this->entityManager->persist($room);
+        $this->entityManager->persist($sceance);
 
         $this->entityManager->flush();
 

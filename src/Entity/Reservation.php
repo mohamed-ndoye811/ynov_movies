@@ -50,13 +50,13 @@ class Reservation
         choices: Reservation::STATUS,
         message: "Choose a valid status"
     )]
-    #[Assert\NotBlank(message: "Le nom du cinéma est obligatoire")]
+    #[Assert\NotBlank(message: "Le status est obligatoire")]
     #[Groups(["reservation"])]
     private ?string $status = null;
 
     #[ORM\Column]
     #[Assert\GreaterThan(
-        value: 1,
+        value: 0,
         message: "A reservation must have at least 1 seat to lock"
     )]
     #[Assert\NotBlank(message: "Le nombre de places est obligatoire")]
