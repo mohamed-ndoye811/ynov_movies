@@ -57,7 +57,7 @@ class CinemaController extends AbstractController
             $request->query->get('pageSize', 10)
         );
 
-        if($cinemas && !count($cinemas)) {
+        if ($cinemas && !count($cinemas)) {
             return new JsonResponse("Aucun résultat", 204);
         }
 
@@ -91,7 +91,7 @@ class CinemaController extends AbstractController
             return $this->json(['message' => 'Cinéma non trouvé'], 404);
         }
 
-        return $this->apiResponse($serializer, ['cinema' => $cinema], $request->getAcceptableContentTypes()[0], 200,
+        return $this->apiResponse($serializer, $cinema, $request->getAcceptableContentTypes()[0], 200,
             ['cinema']);
     }
 
@@ -133,10 +133,7 @@ class CinemaController extends AbstractController
 
         return $this->apiResponse(
             $serializer,
-            [
-                "cinema" => $cinema,
-                "message" => "Le cinéma est créé avec succès"
-            ],
+            $cinema,
             $request->getAcceptableContentTypes(),
             201,
             ['cinema']
@@ -211,18 +208,14 @@ class CinemaController extends AbstractController
     {
         $cinema = $this->entityManager->getRepository(Cinema::class)->find($uid);
 
-        if ($cinema) {
-            $this->entityManager->remove($cinema);
-            $this->entityManager->flush();
-            $message = 'Le cinema a été supprimé avec succès';
-            $statusCode = 200;
-        } else {
-            $message = 'Le cinema est inconnu';
-            $statusCode = 404;
+        if (!$cinema) {
+            return new JsonResponse("Cinema non trouvé", 404);
         }
 
-        return $this->apiResponse($serializer, ['message' => $message], $request->getAcceptableContentTypes()[0], $statusCode,
-            ['cinema']);
+        $this->entityManager->remove($cinema);
+        $this->entityManager->flush();
+
+        return new JsonResponse(null, 204);
     }
 
     // this function is to return a response in JSON or XML format
