@@ -159,7 +159,7 @@ class ReservationController extends AbstractController
             $serializer,
             [
                 "reservation" => $reservation,
-                "message" => "Le cinéma est créé avec succès"
+                "message" => "La reservation a été prise en compte"
             ],
             $request->getAcceptableContentTypes(),
             '201',
