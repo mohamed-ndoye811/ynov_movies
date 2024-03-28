@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use App\Attribute\HateoasLink;
 use App\Repository\CinemaRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -20,6 +21,8 @@ use JMS\Serializer\Annotation\Groups;
  */
 #[ORM\Entity(repositoryClass: CinemaRepository::class)]
 #[ApiResource]
+#[ORM\HasLifecycleCallbacks]
+#[HateoasLink("update", "PUT", "api_pets_put_item")]
 class Cinema
 {
     #[ORM\Id]
@@ -32,6 +35,14 @@ class Cinema
     #[Assert\NotBlank(message: "Le nom du cinéma est obligatoire")]
     #[Groups(["cinema"])]
     private ?string $name = null;
+
+    #[ORM\Column]
+    #[Groups(["cinema"])]
+    private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column]
+    #[Groups(["cinema"])]
+    private ?\DateTimeImmutable $updatedAt = null;
 
     public function __construct()
     {
@@ -58,6 +69,40 @@ class Cinema
     public function setName(string $name): static
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function updatedTimestamps(): void
+    {
+        $this->setUpdatedAt(new \DateTimeImmutable('now'));
+        if ($this->getCreatedAt() === null) {
+            $this->setCreatedAt(new \DateTimeImmutable('now'));
+        }
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
 
         return $this;
     }

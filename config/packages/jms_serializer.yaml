@@ -2,6 +2,9 @@ jms_serializer:
     visitors:
         xml_serialization:
             format_output: '%kernel.debug%'
+    object_constructors:
+        doctrine:
+            enabled: false
 #    metadata:
 #        auto_detection: false
 #        directories:

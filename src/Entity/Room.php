@@ -20,6 +20,7 @@ use Hateoas\Configuration\Annotation as Hateoas;
  */
 #[ORM\Entity(repositoryClass: RoomRepository::class)]
 #[ApiResource]
+#[ORM\HasLifecycleCallbacks]
 class Room
 {
     #[ORM\Id]
@@ -46,6 +47,14 @@ class Room
     #[Assert\NotBlank(message: "Le nombre de places ('seats') est obligatoire")]
     #[Groups(["room"])]
     private ?int $seats = null;
+
+    #[ORM\Column]
+    #[Groups(["room"])]
+    private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column]
+    #[Groups(["room"])]
+    private ?\DateTimeImmutable $updatedAt = null;
 
     public function __construct()
     {
@@ -89,6 +98,40 @@ class Room
     public function setSeats(int $seats): static
     {
         $this->seats = $seats;
+
+        return $this;
+    }
+
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function updatedTimestamps(): void
+    {
+        $this->setUpdatedAt(new \DateTimeImmutable('now'));
+        if ($this->getCreatedAt() === null) {
+            $this->setCreatedAt(new \DateTimeImmutable('now'));
+        }
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
 
         return $this;
     }

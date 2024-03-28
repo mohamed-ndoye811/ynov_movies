@@ -5,6 +5,7 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\ReservationRepository;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation\Groups;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Uid\Uuid;
@@ -19,6 +20,7 @@ use Hateoas\Configuration\Annotation as Hateoas;
  */
 #[ORM\Entity(repositoryClass: ReservationRepository::class)]
 #[ApiResource]
+#[ORM\HasLifecycleCallbacks]
 class Reservation
 {
     public const STATUS_OPEN = 'open';
@@ -59,6 +61,18 @@ class Reservation
     #[Assert\NotBlank(message: "Le nombre de places est obligatoire")]
     #[Groups(["reservation"])]
     private ?int $seats = null;
+
+    #[ORM\Column]
+    #[Groups(["reservation"])]
+    private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column]
+    #[Groups(["reservation"])]
+    private ?\DateTimeImmutable $updatedAt = null;
+
+    #[ORM\Column]
+    #[Groups(["reservation"])]
+    private ?\DateTimeImmutable $expiresAt = null;
 
     public function __construct()
     {
@@ -114,6 +128,52 @@ class Reservation
     public function setSeats(int $seats): static
     {
         $this->seats = $seats;
+
+        return $this;
+    }
+
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function updatedTimestamps(): void
+    {
+        $this->setUpdatedAt(new \DateTimeImmutable('now'));
+        if ($this->getCreatedAt() === null) {
+            $this->setCreatedAt(new \DateTimeImmutable('now'));
+        }
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getExpiresAt(): ?\DateTimeImmutable
+    {
+        return $this->expiresAt;
+    }
+
+    public function setExpiresAt(\DateTimeImmutable $expiresAt): static
+    {
+        $this->expiresAt = $expiresAt;
 
         return $this;
     }

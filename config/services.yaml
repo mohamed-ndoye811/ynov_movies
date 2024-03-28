@@ -29,3 +29,8 @@ services:
             - { name: kernel.event_listener, event: kernel.exception }
     App\Controller\SecurityController:
         tags: [ 'controller.service_arguments' ]
+
+    jms_serializer.object_constructor:
+        stack:
+            - App\Service\CustomObjectConstructor: [ '@doctrine', '@.inner' ]
+            - JMS\Serializer\Construction\UnserializeObjectConstructor: ~
