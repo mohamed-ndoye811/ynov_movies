@@ -35,8 +35,13 @@ class SceanceController extends AbstractController
         $this->entityManager = $entityManager;
     }
 
+    public function getCinema(UuidV4 $cinemaUid): Cinema|null
+    {
+        return $this->entityManager->getRepository(Cinema::class)->find($cinemaUid);
+    }
+
     // This route is for getting a list of all sceances
-    #[Route('room/{roomUid}/sceances', name: 'sceance_listing', methods: ['GET'])]
+    #[Route('cinema/{cinemaUid}/rooms/{roomUid}/sceances', name: 'sceance_listing', methods: ['GET'])]
     /**
      * @OA\Response(
      *     response=200,
@@ -48,9 +53,27 @@ class SceanceController extends AbstractController
      * )
      * @OA\Tag(name="sceance")
      */
-    public function list(UuidV4 $roomUid, SerializerInterface $serializer, Request $request): Response
+    public function list(UuidV4 $cinemaUid, UuidV4 $roomUid, SerializerInterface $serializer, Request $request): Response
     {
-        $sceances = $this->entityManager->getRepository(Room::class)->find($roomUid)->getSceances();
+
+        $cinema = $this->getCinema($cinemaUid);
+
+        if (!$cinema) {
+            return $this->apiResponse($serializer, ['message' => "Cinéma non trouvé"], $request->getAcceptableContentTypes()[0], 404,
+                ['room']);
+        }
+        $room = $cinema->getRoom($roomUid);
+
+        if (!$room) {
+            return $this->apiResponse($serializer, ['message' => "Cinéma non trouvé"], $request->getAcceptableContentTypes()[0], 404,
+                ['room']);
+        }
+
+        $sceances = $room->getSceances();
+
+        if($sceances && !count($sceances)) {
+            return new JsonResponse("Aucun résultat", 204);
+        }
 
         return $this->apiResponse(
             $serializer,
@@ -62,7 +85,7 @@ class SceanceController extends AbstractController
     }
 
     // This route is for getting a specific sceance by ID
-    #[Route('room/{roomUid}/sceances/{uid}', name: 'get_sceance', methods: ['GET'])]
+    #[Route('cinema/{cinemaUid}/rooms/{roomUid}/sceances/{uid}', name: 'get_sceance', methods: ['GET'])]
     /**
      * @OA\Response(
      *     response=200,
@@ -74,15 +97,24 @@ class SceanceController extends AbstractController
      * )
      * @OA\Tag(name="Sceance")
      */
-    public function getSceance(UuidV4 $roomUid, Sceance $sceance, SerializerInterface $serializer, Request $request): Response
+    public function getSceance(UuidV4 $cinemaUid, UuidV4 $roomUid, UuidV4 $uid, SerializerInterface $serializer, Nserializer $nserializer, Request $request, ValidatorInterface $validator): Response
     {
-        $room = $this->entityManager->getRepository(Room::class)->find($roomUid);
+        $cinema = $this->getCinema($cinemaUid);
+
+        if (!$cinema) {
+            return $this->apiResponse($serializer, ['message' => "Cinéma non trouvé"], $request->getAcceptableContentTypes()[0], 404,
+                ['room']);
+        }
+        $room = $cinema->getRoom($roomUid);
 
         if (!$room) {
-            return $this->json(['message' => 'Cinéma non trouvé'], 404);
+            return $this->apiResponse($serializer, ['message' => "Cinéma non trouvé"], $request->getAcceptableContentTypes()[0], 404,
+                ['room']);
         }
 
-        return $this->apiResponse($serializer, ['sceance' => $sceance], $request->getAcceptableContentTypes()[0], 200,
+        $sceance = $room->getSceance($uid);
+
+        return $this->apiResponse($serializer, $sceance, $request->getAcceptableContentTypes()[0], 200,
             ['sceance']);
     }
 
@@ -102,8 +134,19 @@ class SceanceController extends AbstractController
     public function add(UuidV4 $cinemaUid, UuidV4 $roomUid, SerializerInterface $serializer, Request $request, ValidatorInterface $validator): Response
     {
         $cinema = $this->entityManager->getRepository(Cinema::class)->find($cinemaUid);
+
+        if (!$cinema) {
+            return $this->apiResponse($serializer, ['message' => "Cinéma non trouvé"], $request->getAcceptableContentTypes()[0], 404,
+                ['room']);
+        }
+
         $room = $cinema->getRoom($roomUid);
-        
+
+        if (!$room) {
+            return $this->apiResponse($serializer, ['message' => "Salle non trouvé"], $request->getAcceptableContentTypes()[0], 404,
+                ['room']);
+        }
+
         $sceance = $serializer->deserialize($request->getContent(), Sceance::class, "json");
 
 
@@ -113,6 +156,7 @@ class SceanceController extends AbstractController
                 $serializer,
                 [
                     "status" => 422,
+                    "test" => $errors[0],
                     "message" => "Objet non valide: " . $errors[0]->getMessage()
                 ],
                 $request->getAcceptableContentTypes(),
@@ -141,7 +185,7 @@ class SceanceController extends AbstractController
     }
 
     // This route is for getting a list of all sceances
-    #[Route('room/{roomUid}/sceances/{uid}', name: 'edit_sceance', methods: ['PUT'])]
+    #[Route('cinema/{cinemaUid}/rooms/{roomUid}/sceances/{uid}', name: 'edit_sceance', methods: ['PUT'])]
     /**
      * @OA\Response(
      *     response=200,
@@ -153,20 +197,26 @@ class SceanceController extends AbstractController
      * )
      * @OA\Tag(name="sceance")
      */
-    public function edit(UuidV4 $roomUid, UuidV4 $uid, SerializerInterface $serializer, Nserializer $nserializer, Request $request, ValidatorInterface $validator): Response
+    public function edit(UuidV4 $cinemaUid, UuidV4 $roomUid, UuidV4 $uid, SerializerInterface $serializer, Nserializer $nserializer, Request $request, ValidatorInterface $validator): Response
     {
-        $room = $this->entityManager->getRepository(Room::class)->find($roomUid);
+        $cinema = $this->getCinema($cinemaUid);
+
+        if (!$cinema) {
+            return $this->apiResponse($serializer, ['message' => "Cinéma non trouvé"], $request->getAcceptableContentTypes()[0], 404,
+                ['room']);
+        }
+        $room = $cinema->getRoom($roomUid);
 
         if (!$room) {
             return $this->apiResponse($serializer, ['message' => "Cinéma non trouvé"], $request->getAcceptableContentTypes()[0], 404,
-                ['sceance']);
+                ['room']);
         }
 
         $sceance = $room->getSceance($uid);
 
-        if(!$sceance) {
-            return $this->apiResponse($serializer, ['message' => "Salle non trouvé"], $request->getAcceptableContentTypes()[0], 404,
-                ['sceance']);
+        if (!$sceance) {
+            return $this->apiResponse($serializer, ['message' => "Sceance non trouvé"], $request->getAcceptableContentTypes()[0], 404,
+                ['room']);
         }
 
         $nserializer->deserialize($request->getContent(), Sceance::class, 'json', [
@@ -193,9 +243,7 @@ class SceanceController extends AbstractController
 
         return $this->apiResponse(
             $serializer,
-            [
-                'message' => "La salle a été mise à jour avec succès"
-            ],
+            $sceance,
             $request->getAcceptableContentTypes(),
             200,
             ['sceance']
@@ -204,7 +252,7 @@ class SceanceController extends AbstractController
 
 
     // This route is for deleting an existing sceance by ID
-    #[Route('/cinema{cinemaUid}/{roomUid}/sceances/{uid}', name: 'delete_sceance', methods: ['DELETE'])]
+    #[Route('cinema/{cinemaUid}/rooms/{roomUid}/sceances/{uid}', name: 'delete_sceance', methods: ['DELETE'])]
     /**
      * @OA\Response(
      *     response=200,
@@ -217,31 +265,36 @@ class SceanceController extends AbstractController
      * )
      * @OA\Tag(name="sceance")
      */
-    public function delete(UuidV4 $roomUid, UuidV4 $uid, SerializerInterface $serializer, Request $request): Response
+    public function delete(UuidV4 $cinemaUid, UuidV4 $roomUid, UuidV4 $uid, SerializerInterface $serializer, Request $request): Response
     {
 
-        $room = $this->entityManager->getRepository(Room::class)->find($roomUid);
+        $cinema = $this->getCinema($cinemaUid);
+
+        if (!$cinema) {
+            return $this->apiResponse($serializer, ['message' => "Cinéma non trouvé"], $request->getAcceptableContentTypes()[0], 404,
+                ['room']);
+        }
+        $room = $cinema->getRoom($roomUid);
 
         if (!$room) {
             return $this->apiResponse($serializer, ['message' => "Cinéma non trouvé"], $request->getAcceptableContentTypes()[0], 404,
-                ['sceance']);
+                ['room']);
         }
 
         $sceance = $room->getSceance($uid);
 
-        if ($sceance) {
-            $room->removeSceance($sceance);
-            $this->entityManager->remove($sceance);
-            $this->entityManager->flush();
-            $message = 'La salle a été supprimée avec succès';
-            $statusCode = 200;
-        } else {
-            $message = 'La salle est inconnue';
-            $statusCode = 404;
+        if (!$sceance) {
+            return $this->apiResponse($serializer, ['message' => "Sceance non trouvé"], $request->getAcceptableContentTypes()[0], 404,
+                ['room']);
         }
 
-        return $this->apiResponse($serializer, ['message' => $message], $request->getAcceptableContentTypes()[0], $statusCode,
-            ['sceance']);
+
+        $room->removeSceance($sceance);
+        $this->entityManager->remove($sceance);
+        $this->entityManager->persist($room);
+        $this->entityManager->flush();
+
+        return new JsonResponse(null, 204);
     }
 
     // this function is to return a response in JSON or XML format

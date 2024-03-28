@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Validator\Constraints\Json;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Validator\Exception\ValidationException;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -56,6 +57,10 @@ class CinemaController extends AbstractController
             $request->query->get('pageSize', 10)
         );
 
+        if($cinemas && !count($cinemas)) {
+            return new JsonResponse("Aucun résultat", 204);
+        }
+
         return $this->apiResponse(
             $serializer,
             $cinemas,
@@ -94,7 +99,7 @@ class CinemaController extends AbstractController
     #[Route('cinema', name: 'create_cinema', methods: ['POST'])]
     /**
      * @OA\Response(
-     *     response=200,
+     *     response=201,
      *     description="Add a cinema",
      *     @OA\JsonContent(
      *        type="array",
@@ -133,7 +138,7 @@ class CinemaController extends AbstractController
                 "message" => "Le cinéma est créé avec succès"
             ],
             $request->getAcceptableContentTypes(),
-            '201',
+            201,
             ['cinema']
         );
     }

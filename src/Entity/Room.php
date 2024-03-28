@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation\Groups;
 use Symfony\Bridge\Doctrine\Types\UuidType;
+use Symfony\Component\Uid\UuidV4;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Uid\Uuid;
 use Hateoas\Configuration\Annotation as Hateoas;
@@ -161,6 +162,15 @@ class Room
     public function getSceances(): Collection
     {
         return $this->sceances;
+    }
+
+    public function getSceance(UuidV4 $targetSceance): Sceance | null | Collection
+    {
+        return $this->getSceances()->filter(
+            function ($sceance) use ($targetSceance) {
+                return ($sceance->getUid() == $targetSceance);
+            }
+        )->first();
     }
 
     public function addSceance(Sceance $sceance): static

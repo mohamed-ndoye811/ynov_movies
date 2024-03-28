@@ -51,6 +51,10 @@ class RoomController extends AbstractController
     {
         $rooms = $this->entityManager->getRepository(Cinema::class)->find($cinemaUid)->getRooms();
 
+        if($rooms && !count($rooms)) {
+            return new JsonResponse("Aucun résultat", 204);
+        }
+
         return $this->apiResponse(
             $serializer,
             $rooms,
@@ -89,7 +93,7 @@ class RoomController extends AbstractController
     #[Route('cinema/{cinemaUid}/rooms', name: 'create_room', methods: ['POST'])]
     /**
      * @OA\Response(
-     *     response=200,
+     *     response=201,
      *     description="Add a room",
      *     @OA\JsonContent(
      *        type="array",
@@ -127,12 +131,9 @@ class RoomController extends AbstractController
 
         return $this->apiResponse(
             $serializer,
-            [
-                "room" => $room,
-                "message" => "Le cinéma est créé avec succès"
-            ],
+            $room,
             $request->getAcceptableContentTypes(),
-            '201',
+            201,
             ['room']
         );
     }
@@ -161,7 +162,7 @@ class RoomController extends AbstractController
 
         $room = $cinema->getRoom($uid);
 
-        if(!$room) {
+        if (!$room) {
             return $this->apiResponse($serializer, ['message' => "Salle non trouvé"], $request->getAcceptableContentTypes()[0], 404,
                 ['room']);
         }
@@ -190,9 +191,7 @@ class RoomController extends AbstractController
 
         return $this->apiResponse(
             $serializer,
-            [
-                'message' => "La salle a été mise à jour avec succès"
-            ],
+            $room,
             $request->getAcceptableContentTypes(),
             200,
             ['room']
@@ -204,13 +203,13 @@ class RoomController extends AbstractController
     #[Route('/cinema/{cinemaUid}/rooms/{uid}', name: 'delete_room', methods: ['DELETE'])]
     /**
      * @OA\Response(
-     *     response=200,
-     *     description="Le room a été supprimé avec succès",
+     *     response=204,
+     *     description="La salle a été supprimé avec succès",
      *     @OA\JsonContent(ref=@Model(type=room::class, groups={"room"}))
      * )
      * @OA\Response(
      *     response=404,
-     *     description="Le room est inconnu"
+     *     description="LLa salle n'a pas été trouvée"
      * )
      * @OA\Tag(name="room")
      */
@@ -226,19 +225,16 @@ class RoomController extends AbstractController
 
         $room = $cinema->getRoom($uid);
 
-        if ($room) {
-            $cinema->removeRoom($room);
-            $this->entityManager->remove($room);
-            $this->entityManager->flush();
-            $message = 'La salle a été supprimée avec succès';
-            $statusCode = 200;
-        } else {
-            $message = 'La salle est inconnue';
-            $statusCode = 404;
+        if (!$room) {
+            return $this->apiResponse($serializer, ['message' => "Salle non trouvée"], $request->getAcceptableContentTypes()[0], 404,
+                ['room']);
         }
 
-        return $this->apiResponse($serializer, ['message' => $message], $request->getAcceptableContentTypes()[0], $statusCode,
-            ['room']);
+        $cinema->removeRoom($room);
+        $this->entityManager->remove($room);
+        $this->entityManager->flush();
+
+        return new JsonResponse(null, 204);
     }
 
     // this function is to return a response in JSON or XML format

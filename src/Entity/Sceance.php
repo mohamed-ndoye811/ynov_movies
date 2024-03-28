@@ -37,7 +37,7 @@ class Sceance
     private ?Uuid $movie = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    #[Assert\Date]
+    #[Assert\Type("\DateTimeInterface")]
     #[Assert\GreaterThanOrEqual(
         value: 'now',
         message: "You can't plan a sceance in the past"
@@ -46,11 +46,9 @@ class Sceance
     private ?\DateTimeInterface $date = null;
 
     #[ORM\Column]
-    #[Groups(["sceance"])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
-    #[Groups(["sceance"])]
     private ?\DateTimeImmutable $updatedAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'sceances')]
