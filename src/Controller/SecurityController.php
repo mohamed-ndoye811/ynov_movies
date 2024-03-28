@@ -3,11 +3,15 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Service\LoginAttemptService;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpClient\HttpClientInterface;
+use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Security;
@@ -17,7 +21,7 @@ use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 
-class SecurityController
+class SecurityController extends AbstractController
 {
     private $entityManager;
     private $passwordEncoder;
@@ -126,9 +130,17 @@ class SecurityController
      *     )
      * )
      */
-    public function login(Request $request): Response
+    public function login(
+        Request $request,
+        RateLimiterFactory $anonymousApiLimiter
+    ): Response
     {
+        $limiter = $anonymousApiLimiter->create($request->getClientIp());
         $data = json_decode($request->getContent(), true);
+        // Si le nombre de tentatives est dépassé
+        if ($limiter->consume()->isAccepted() === false) {
+            throw new TooManyRequestsHttpException(10,  'You have reached the maximum number of login attempts');
+        }
         // Vérfier que l'email et le mot de passe sont bien envoyés
         if (!isset($data['email']) || !isset($data['password'])) {
             return new Response('Email or password not sent', 400);
