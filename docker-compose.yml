@@ -1,0 +1,23 @@
+version: "3"
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app:rw
+    command: symfony server:start --port=8000 --no-tls --allow-http
+  db:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: movies_api
+      POSTGRES_USER: iannis_api
+      POSTGRES_PASSWORD: iannis
+    volumes:
+      - postgres_data:/var/lib/postgresql/datapostgresql/data:rw
+###< doctrine/doctrine-bundle ###
+
+volumes:
+  postgres_data:
