@@ -91,9 +91,8 @@ class MovieController extends AbstractController
     public function getMovie(string $uid, SerializerInterface $serializer, Request $request): Response
     {
         $movie = $this->entityManager->getRepository(Movie::class)->find($uid);
-
         if (!$movie) {
-            return $this->json(['message' => 'Movie not found'], 404);
+            return $this->json(['message' => 'Movie not found with id ' . $uid], 404);
         }
 
         return $this->apiResponse($serializer, ['movie' => $movie], $request->getAcceptableContentTypes()[0], 200,
